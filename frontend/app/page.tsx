@@ -1,22 +1,38 @@
 import React from 'react';
-import { ArrowRight } from 'lucide-react';
+import { Activity, Flame, Timer, TrendingUp } from 'lucide-react';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24 bg-slate-50">
-      <div className="z-10 w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl lg:static lg:w-auto lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4">
-          Status: <span className="font-bold text-green-600 ml-2">Live Demo</span>
+    <main className="min-h-screen bg-zinc-950 text-white font-sans selection:bg-red-500 selection:text-white">
+      <div className="max-w-5xl mx-auto px-6 py-20 text-center">
+        <h1 className="text-6xl md:text-9xl font-black italic tracking-tighter mb-8 uppercase text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-600">
+          FitTrack
+        </h1>
+        <p className="text-2xl text-zinc-400 mb-12 max-w-2xl mx-auto">
+          Track progress. Build habits. <span className="text-red-500 font-bold">No excuses.</span>
         </p>
-      </div>
-      <div className="relative flex flex-col place-items-center text-center">
-        <h1 className="text-6xl font-bold tracking-tight text-slate-900 mb-4">FitTrack</h1>
-        <p className="text-xl text-slate-600 max-w-2xl">Workout & Health Progress Tracker</p>
-        <div className="mt-8 flex gap-4">
-            <button className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
-                Launch App <ArrowRight size={18} />
-            </button>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="bg-zinc-900 p-8 rounded-2xl border border-zinc-800 hover:border-red-500/50 transition group">
+            <Flame className="w-10 h-10 text-red-500 mb-4 group-hover:scale-110 transition" />
+            <h3 className="text-xl font-bold mb-2">Heatmap Analytics</h3>
+            <p className="text-zinc-500">Visualize your consistency over 365 days.</p>
+          </div>
+          <div className="bg-zinc-900 p-8 rounded-2xl border border-zinc-800 hover:border-red-500/50 transition group">
+            <Activity className="w-10 h-10 text-red-500 mb-4 group-hover:scale-110 transition" />
+            <h3 className="text-xl font-bold mb-2">Form Correction</h3>
+            <p className="text-zinc-500">AI analysis of your lifting technique via camera.</p>
+          </div>
+          <div className="bg-zinc-900 p-8 rounded-2xl border border-zinc-800 hover:border-red-500/50 transition group">
+            <TrendingUp className="w-10 h-10 text-red-500 mb-4 group-hover:scale-110 transition" />
+            <h3 className="text-xl font-bold mb-2">Progressive Overload</h3>
+            <p className="text-zinc-500">Smart weight suggestions for every session.</p>
+          </div>
         </div>
+
+        <button className="mt-16 bg-red-600 hover:bg-red-700 text-white px-10 py-4 rounded-full font-bold text-lg transition shadow-lg shadow-red-900/20">
+          Start Your Transformation
+        </button>
       </div>
     </main>
   );
