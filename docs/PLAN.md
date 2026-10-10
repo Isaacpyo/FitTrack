@@ -15,7 +15,7 @@ and the web (Netlify).
 | Health   | `@kingstinct/react-native-healthkit`, `react-native-health-connect`, mock    |
 | API      | Node 22, Fastify 5, Zod validation, JWT auth, `node:crypto` scrypt passwords |
 | Database | Postgres (Neon in production, `postgres:17` container locally)               |
-| Shared   | `packages/shared`: Zod schemas, exercise catalog, pure fitness logic          |
+| Shared   | `packages/shared`: Zod schemas, exercise catalog, pure fitness logic         |
 
 ## Repository layout
 
@@ -36,14 +36,14 @@ Metro, Vitest and `tsx` compile it directly; the API production build (tsup) bun
 - `exercises(id slug pk, name, muscle_group, equipment, is_bodyweight)` — seeded from the
   shared catalog so client and server agree on ids without a network round-trip.
 - `routines(id uuid pk, user_id, name, notes, exercises jsonb, updated_at, deleted_at,
-  server_updated_at)` — a routine is a template read/written as a whole, so JSONB
+server_updated_at)` — a routine is a template read/written as a whole, so JSONB
   (validated by Zod) keeps it simple.
 - `workouts(id uuid pk, user_id, routine_id, name, started_at, duration_min, notes,
-  updated_at, deleted_at, server_updated_at)`
+updated_at, deleted_at, server_updated_at)`
 - `workout_sets(id uuid pk, workout_id, exercise_id, exercise_order, set_order, reps,
-  weight_kg)` — normalised because sets are the analytics data (volume, PRs).
+weight_kg)` — normalised because sets are the analytics data (volume, PRs).
 - `activity_daily(user_id, day, steps, active_minutes, energy_kcal, source,
-  server_updated_at)` — one row per user per local day.
+server_updated_at)` — one row per user per local day.
 
 IDs are UUIDs generated on the client, which is what makes offline creation and idempotent
 retries possible.
@@ -83,7 +83,7 @@ Native modules are loaded lazily so Expo Go and web never import them.
 
 `POST /auth/demo` creates a short-lived demo user (purged after `DEMO_TTL_HOURS`) seeded with
 ~10 weeks of progressive-overload workouts, three routines and 60 days of activity,
-generated relative to *today* so streaks and charts always look current. Each visitor gets
+generated relative to _today_ so streaks and charts always look current. Each visitor gets
 their own sandbox, so one visitor's edits never leak to another. `npm run db:seed` also
 creates a fixed local account `demo@fittrack.dev` / `demo-password`.
 
