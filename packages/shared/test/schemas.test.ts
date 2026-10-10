@@ -138,3 +138,27 @@ describe('profile and activity schemas', () => {
     );
   });
 });
+
+describe('integrity rules', () => {
+  it('rejects duplicate set ids inside one workout', () => {
+    const set = validWorkout.exercises[0]!.sets[0]!;
+    const dup = {
+      ...validWorkout,
+      exercises: [{ exerciseId: 'bench-press', sets: [set, { ...set }] }],
+    };
+    const result = workoutInputSchema.safeParse(dup);
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toBe('Duplicate set id');
+  });
+
+  it('rejects the same day twice in an activity batch', () => {
+    const day = {
+      date: '2026-10-10',
+      steps: 9000,
+      activeMinutes: 40,
+      energyKcal: 400,
+      source: 'mock',
+    };
+    expect(activityBatchSchema.safeParse({ days: [day, day] }).success).toBe(false);
+  });
+});

@@ -43,8 +43,7 @@ export const workoutExerciseSchema = z.object({
   sets: z.array(workoutSetSchema).min(1, 'Add at least one set').max(LIMITS.maxSetsPerExercise),
 });
 
-/** Body of PUT /workouts/:id — the full workout document, last-write-wins on `updatedAt`. */
-export const workoutInputSchema = z.object({
+const workoutFields = z.object({
   id: z.uuid(),
   name: z.string().trim().min(1, 'Give the workout a name').max(80),
   startedAt: isoDateTime,
@@ -63,7 +62,24 @@ export const workoutInputSchema = z.object({
   updatedAt: isoDateTime,
 });
 
-export const workoutSchema = workoutInputSchema.extend({
+/** Body of PUT /workouts/:id — the full workout document, last-write-wins on `updatedAt`. */
+export const workoutInputSchema = workoutFields.superRefine((w, ctx) => {
+  const seen = new Set<string>();
+  w.exercises.forEach((ex, i) =>
+    ex.sets.forEach((set, j) => {
+      if (seen.has(set.id)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['exercises', i, 'sets', j, 'id'],
+          message: 'Duplicate set id',
+        });
+      }
+      seen.add(set.id);
+    }),
+  );
+});
+
+export const workoutSchema = workoutFields.extend({
   /** Tombstone: set when the workout was deleted (propagates deletes through sync). */
   deletedAt: isoDateTime.nullable(),
 });
@@ -118,7 +134,14 @@ export const dailyActivitySchema = z.object({
 });
 
 export const activityBatchSchema = z.object({
-  days: z.array(dailyActivitySchema).min(1).max(LIMITS.maxActivityDaysPerBatch),
+  days: z
+    .array(dailyActivitySchema)
+    .min(1)
+    .max(LIMITS.maxActivityDaysPerBatch)
+    .refine(
+      (days) => new Set(days.map((d) => d.date)).size === days.length,
+      'Each day may appear only once',
+    ),
 });
 
 export type ActivitySource = z.infer<typeof activitySourceSchema>;
