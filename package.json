@@ -1,0 +1,29 @@
+{
+  "name": "fittrack",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FitTrack — offline-first workout tracker (Expo + Redux Toolkit + Node/Postgres)",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "docker compose up --build",
+    "dev:api": "npm run dev -w @fittrack/api",
+    "dev:web": "npm run start -w @fittrack/web",
+    "db:migrate": "npm run migrate -w @fittrack/api",
+    "db:seed": "npm run seed -w @fittrack/api",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:e2e": "playwright test",
+    "build:web": "npm run build -w @fittrack/web",
+    "build:api": "npm run build -w @fittrack/api",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  }
+}
