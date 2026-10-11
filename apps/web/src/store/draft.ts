@@ -54,7 +54,8 @@ export function prefillSets(
   target?: { sets: number; reps: number; weightKg: number | null },
 ): DraftSet[] {
   const last = lastPerformance(history, exerciseId);
-  const count = target?.sets ?? last?.sets.length ?? 3;
+  // A first-time exercise starts with one set; "Add set" copies it.
+  const count = target?.sets ?? last?.sets.length ?? 1;
   return Array.from({ length: count }, (_, i) => {
     const previous = last?.sets[Math.min(i, last.sets.length - 1)];
     const weight = previous?.weightKg ?? target?.weightKg ?? (EXERCISES_BY_ID.get(exerciseId)?.bodyweight ? 0 : null);

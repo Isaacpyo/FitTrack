@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { Routine } from '@fittrack/shared';
 import { describe, expect, it } from 'vitest';
-import { draftFromWorkout, draftToWorkout, newDraft, type Draft } from '../src/store/draft';
+import { draftFromWorkout, draftToWorkout, newDraft, prefillSets, type Draft } from '../src/store/draft';
 import { workout } from './fixtures';
 
 const now = new Date('2026-10-10T17:30:00.000Z');
@@ -27,6 +27,11 @@ describe('newDraft', () => {
     expect(d.exercises.map((e) => e.sets.length)).toEqual([3, 2]);
     expect(d.exercises[0]!.sets[0]).toMatchObject({ weightKg: '72.5', reps: '8' });
     expect(d.exercises[1]!.sets[0]).toMatchObject({ weightKg: '0', reps: '15' });
+  });
+
+  it('starts a never-logged exercise with a single blank set', () => {
+    expect(prefillSets('deadlift', [], randomUUID)).toEqual([{ id: expect.any(String), weightKg: '', reps: '' }]);
+    expect(prefillSets('pull-up', [], randomUUID)[0]).toMatchObject({ weightKg: '0' });
   });
 
   it('names an empty workout after the time of day', () => {

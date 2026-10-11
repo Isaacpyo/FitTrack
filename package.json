@@ -20,11 +20,13 @@
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "test:e2e": "playwright test",
+    "test:e2e": "npm run e2e:build && playwright test",
     "build:web": "npm run build -w @fittrack/web",
     "build:api": "npm run build -w @fittrack/api",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "e2e:build": "npm run build -w @fittrack/api && EXPO_PUBLIC_API_URL=http://localhost:4310 npm run build -w @fittrack/web",
+    "preview:web": "node e2e/serve-web.mjs apps/web/dist 8080"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
