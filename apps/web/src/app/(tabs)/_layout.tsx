@@ -22,7 +22,7 @@ export default function TabsLayout() {
         // Native sizes the bar around the safe area; the web build needs room for the label.
         tabBarStyle: [
           { backgroundColor: colors.surface, borderTopColor: colors.border },
-          Platform.OS === 'web' ? { height: 62, paddingTop: 6, paddingBottom: 8 } : null,
+          Platform.OS === 'web' ? { height: 64, paddingTop: 2, paddingBottom: 2 } : null,
         ],
         tabBarLabelStyle: { fontSize: 12, lineHeight: 16, fontWeight: '600' },
         sceneStyle: { backgroundColor: colors.bg },
