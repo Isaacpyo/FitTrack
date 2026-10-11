@@ -18,6 +18,17 @@ describe('config', () => {
     expect(ok.jwtSecret).toHaveLength(32);
   });
 
+  it('treats empty values from .env files as unset', () => {
+    const c = loadConfig({
+      NODE_ENV: 'development',
+      DATABASE_URL: 'postgres://x',
+      JWT_SECRET: '',
+      PORT: '',
+    });
+    expect(c.jwtSecret.length).toBeGreaterThanOrEqual(32);
+    expect(c.port).toBe(4000);
+  });
+
   it('parses CORS origins and booleans', () => {
     const c = loadConfig({
       DATABASE_URL: 'postgres://x',

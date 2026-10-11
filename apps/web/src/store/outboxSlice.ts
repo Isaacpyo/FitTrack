@@ -12,7 +12,13 @@ export interface OutboxState {
   retryAt: number | null;
 }
 
-const initialState: OutboxState = { items: [], failed: [], inFlightId: null, consecutiveFailures: 0, retryAt: null };
+const initialState: OutboxState = {
+  items: [],
+  failed: [],
+  inFlightId: null,
+  consecutiveFailures: 0,
+  retryAt: null,
+};
 
 const outboxSlice = createSlice({
   name: 'outbox',
@@ -47,7 +53,12 @@ const outboxSlice = createSlice({
     sendRejected(state, action: PayloadAction<{ id: string; error: string }>) {
       const item = state.items.find((i) => i.id === action.payload.id);
       state.items = state.items.filter((i) => i.id !== action.payload.id);
-      if (item) state.failed.push({ ...item, attempts: item.attempts + 1, lastError: action.payload.error });
+      if (item)
+        state.failed.push({
+          ...item,
+          attempts: item.attempts + 1,
+          lastError: action.payload.error,
+        });
       state.inFlightId = null;
     },
     failedRetried(state, action: PayloadAction<string>) {
@@ -69,6 +80,14 @@ const outboxSlice = createSlice({
   },
 });
 
-export const { enqueued, sendStarted, sendSucceeded, sendDeferred, sendAborted, sendRejected, failedRetried, failedDiscarded } =
-  outboxSlice.actions;
+export const {
+  enqueued,
+  sendStarted,
+  sendSucceeded,
+  sendDeferred,
+  sendAborted,
+  sendRejected,
+  failedRetried,
+  failedDiscarded,
+} = outboxSlice.actions;
 export default outboxSlice.reducer;

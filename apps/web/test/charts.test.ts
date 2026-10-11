@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { columnPath, compactNumber, labelIndices, niceStep, niceTicks } from '../src/components/charts/scale';
+import {
+  columnPath,
+  compactNumber,
+  labelIndices,
+  niceStep,
+  niceTicks,
+} from '../src/components/charts/scale';
 
 describe('chart scales', () => {
   it('picks nice steps', () => {
@@ -13,7 +19,12 @@ describe('chart scales', () => {
   });
 
   it('formats compact numbers', () => {
-    expect([950, 1500, 12_340, 2_500_000].map(compactNumber)).toEqual(['950', '1.5K', '12K', '2.5M']);
+    expect([950, 1500, 12_340, 2_500_000].map(compactNumber)).toEqual([
+      '950',
+      '1.5K',
+      '12K',
+      '2.5M',
+    ]);
   });
 
   it('thins x labels so they never collide, always keeping the latest', () => {

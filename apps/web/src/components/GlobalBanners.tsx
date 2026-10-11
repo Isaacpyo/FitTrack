@@ -19,7 +19,8 @@ export function GlobalBanners() {
             <Text style={{ color: colors.text, fontWeight: '700' }}>You’re offline</Text>
             <Body muted style={{ fontSize: 14 }}>
               Everything you log is saved on this device
-              {pending > 0 ? ` (${pending} change${pending === 1 ? '' : 's'} waiting)` : ''} and syncs when you reconnect.
+              {pending > 0 ? ` (${pending} change${pending === 1 ? '' : 's'} waiting)` : ''} and
+              syncs when you reconnect.
             </Body>
           </Banner>
         ) : (

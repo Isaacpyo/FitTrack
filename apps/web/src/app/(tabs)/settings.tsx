@@ -5,11 +5,26 @@ import { View } from 'react-native';
 import { fieldErrorsFrom } from '../../components/AuthForm';
 import { useHealthProvider } from '../../components/HealthCard';
 import { Screen } from '../../components/Screen';
-import { Badge, Banner, Body, Button, Caption, Card, Heading, Row, TextField, Title } from '../../components/ui';
+import {
+  Badge,
+  Banner,
+  Body,
+  Button,
+  Caption,
+  Card,
+  Heading,
+  Row,
+  TextField,
+  Title,
+} from '../../components/ui';
 import { API_URL } from '../../config';
 import { syncHealthData } from '../../health/sync';
 import { confirm } from '../../lib/confirm';
-import { describeApiError, useDeleteAccountMutation, useUpdateProfileMutation } from '../../store/api';
+import {
+  describeApiError,
+  useDeleteAccountMutation,
+  useUpdateProfileMutation,
+} from '../../store/api';
 import { flushRequested, pullRequested, signedOut } from '../../store/actions';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { failedDiscarded, failedRetried } from '../../store/outboxSlice';
@@ -65,7 +80,13 @@ function ProfileCard() {
   return (
     <Card style={{ gap: space.md }}>
       <Heading>Profile & goals</Heading>
-      <TextField label="Name" value={form.displayName} onChangeText={set('displayName')} error={errors.displayName} autoComplete="name" />
+      <TextField
+        label="Name"
+        value={form.displayName}
+        onChangeText={set('displayName')}
+        error={errors.displayName}
+        autoComplete="name"
+      />
       <View style={{ flexDirection: 'row', gap: space.md, flexWrap: 'wrap' }}>
         <TextField
           style={{ flexGrow: 1, flexBasis: 140 }}
@@ -100,20 +121,28 @@ function ProfileCard() {
 function HealthSettings() {
   const dispatch = useAppDispatch();
   const provider = useHealthProvider();
-  const { healthConnected, healthSyncing, healthError, lastHealthSyncAt } = useAppSelector((s) => s.activity);
+  const { healthConnected, healthSyncing, healthError, lastHealthSyncAt } = useAppSelector(
+    (s) => s.activity,
+  );
   return (
     <Card style={{ gap: space.md }}>
       <Heading>Health data</Heading>
       <Row>
         <Body>Source: {provider?.label ?? '…'}</Body>
-        {provider?.isMock ? <Badge tone="info" label="Simulated" /> : healthConnected ? <Badge tone="success" label="Connected" /> : null}
+        {provider?.isMock ? (
+          <Badge tone="info" label="Simulated" />
+        ) : healthConnected ? (
+          <Badge tone="success" label="Connected" />
+        ) : null}
       </Row>
       <Body muted style={{ fontSize: 14 }}>
         {provider?.isMock
           ? 'Browsers and Expo Go can’t read Apple Health or Health Connect, so this build uses realistic simulated steps. Install the iOS or Android development build to sync real data.'
           : 'FitTrack reads steps, active energy and exercise minutes for the last 30 days. Nothing is written back.'}
       </Body>
-      <Body muted style={{ fontSize: 14 }}>Last synced {timeAgo(lastHealthSyncAt)}</Body>
+      <Body muted style={{ fontSize: 14 }}>
+        Last synced {timeAgo(lastHealthSyncAt)}
+      </Body>
       {healthError ? <Body style={{ color: colors.danger }}>{healthError}</Body> : null}
       {provider ? (
         <Button
@@ -121,7 +150,9 @@ function HealthSettings() {
           icon="refresh"
           label={!provider.isMock && !healthConnected ? `Connect ${provider.label}` : 'Sync now'}
           loading={healthSyncing}
-          onPress={() => void dispatch(syncHealthData(provider, { requestPermission: !provider.isMock }))}
+          onPress={() =>
+            void dispatch(syncHealthData(provider, { requestPermission: !provider.isMock }))
+          }
         />
       ) : null}
     </Card>
@@ -137,9 +168,14 @@ function SyncSettings() {
     <Card style={{ gap: space.md }} testID="sync-settings">
       <Heading>Sync</Heading>
       <Body>
-        {online ? 'Online' : 'Offline'} · {pending} change{pending === 1 ? '' : 's'} waiting · last synced {timeAgo(lastPulledAt)}
+        {online ? 'Online' : 'Offline'} · {pending} change{pending === 1 ? '' : 's'} waiting · last
+        synced {timeAgo(lastPulledAt)}
       </Body>
-      {lastError && pending > 0 ? <Body style={{ color: colors.warning, fontSize: 14 }}>Last attempt: {lastError} Retrying automatically.</Body> : null}
+      {lastError && pending > 0 ? (
+        <Body style={{ color: colors.warning, fontSize: 14 }}>
+          Last attempt: {lastError} Retrying automatically.
+        </Body>
+      ) : null}
       <Button
         variant="secondary"
         icon="sync"
@@ -162,8 +198,18 @@ function SyncSettings() {
                 {OP_LABELS[f.kind]}: {f.lastError}
               </Body>
               <Row>
-                <Button compact variant="secondary" label="Retry" onPress={() => dispatch(failedRetried(f.id))} />
-                <Button compact variant="ghost" label="Discard" onPress={() => dispatch(failedDiscarded(f.id))} />
+                <Button
+                  compact
+                  variant="secondary"
+                  label="Retry"
+                  onPress={() => dispatch(failedRetried(f.id))}
+                />
+                <Button
+                  compact
+                  variant="ghost"
+                  label="Discard"
+                  onPress={() => dispatch(failedDiscarded(f.id))}
+                />
               </Row>
             </View>
           ))}
@@ -188,7 +234,15 @@ function AccountSettings() {
   };
 
   const doDelete = async () => {
-    if (!(await confirm('Delete account?', 'This permanently deletes your account and all workouts, routines and health data.', 'Delete', true))) return;
+    if (
+      !(await confirm(
+        'Delete account?',
+        'This permanently deletes your account and all workouts, routines and health data.',
+        'Delete',
+        true,
+      ))
+    )
+      return;
     const result = await deleteAccount();
     if (!('error' in result)) dispatch(signedOut({ reason: 'user' }));
   };
@@ -200,9 +254,22 @@ function AccountSettings() {
         <Body>{user?.email}</Body>
         {user?.isDemo ? <Badge tone="info" label="Demo account · deleted after 24 h" /> : null}
       </Row>
-      <Button variant="secondary" icon="log-out-outline" label="Sign out" onPress={doSignOut} testID="sign-out" />
+      <Button
+        variant="secondary"
+        icon="log-out-outline"
+        label="Sign out"
+        onPress={doSignOut}
+        testID="sign-out"
+      />
       {error ? <Body style={{ color: colors.danger }}>{describeApiError(error)}</Body> : null}
-      <Button variant="danger" icon="trash-outline" label="Delete account" onPress={doDelete} loading={isLoading} disabled={!online} />
+      <Button
+        variant="danger"
+        icon="trash-outline"
+        label="Delete account"
+        onPress={doDelete}
+        loading={isLoading}
+        disabled={!online}
+      />
     </Card>
   );
 }

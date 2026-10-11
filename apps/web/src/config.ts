@@ -2,7 +2,8 @@
  * Build-time configuration. Expo inlines `process.env.EXPO_PUBLIC_*` when bundling, so these
  * must be read with direct property access.
  */
-export const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? '').trim().replace(/\/+$/, '') || 'http://localhost:4000';
+export const API_URL =
+  (process.env.EXPO_PUBLIC_API_URL ?? '').trim().replace(/\/+$/, '') || 'http://localhost:4000';
 
 /** 'mock' forces the mock health provider on native too (e.g. in Expo Go or simulators). */
 export const HEALTH_PROVIDER_OVERRIDE = process.env.EXPO_PUBLIC_HEALTH_PROVIDER;

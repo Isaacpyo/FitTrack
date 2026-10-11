@@ -38,7 +38,10 @@ export function HealthCard() {
         <Caption>Steps today</Caption>
         <Caption>{formatDateKey(today)}</Caption>
       </Row>
-      <Body style={{ fontSize: 26, fontWeight: '800' }} accessibilityLabel={`${formatNumber(steps)} of ${formatNumber(goal)} steps`}>
+      <Body
+        style={{ fontSize: 26, fontWeight: '800' }}
+        accessibilityLabel={`${formatNumber(steps)} of ${formatNumber(goal)} steps`}
+      >
         {formatNumber(steps)}
         <Body muted style={{ fontSize: 16 }}>{` / ${formatNumber(goal)}`}</Body>
       </Body>
@@ -60,7 +63,11 @@ export function HealthCard() {
           icon={needsConnect ? 'link-outline' : 'refresh'}
           label={needsConnect ? `Connect ${provider.label}` : 'Sync health data'}
           loading={healthSyncing}
-          onPress={() => void dispatch(syncHealthData(provider, { requestPermission: needsConnect || !provider.isMock }))}
+          onPress={() =>
+            void dispatch(
+              syncHealthData(provider, { requestPermission: needsConnect || !provider.isMock }),
+            )
+          }
         />
       ) : null}
     </Card>

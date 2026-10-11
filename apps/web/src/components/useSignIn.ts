@@ -23,7 +23,10 @@ export function useDemoSignIn() {
   const complete = useCompleteSignIn();
   const start = useCallback(async () => {
     const now = new Date();
-    const result = await demoLogin({ today: toDateKey(now), utcOffsetMinutes: -now.getTimezoneOffset() });
+    const result = await demoLogin({
+      today: toDateKey(now),
+      utcOffsetMinutes: -now.getTimezoneOffset(),
+    });
     if ('data' in result && result.data) complete(result.data);
   }, [demoLogin, complete]);
   return { start, ...state };

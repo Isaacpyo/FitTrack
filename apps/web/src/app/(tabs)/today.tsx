@@ -1,4 +1,10 @@
-import { exerciseName, formatDateKey, periodSummary, RECORD_LABELS, startOfWeek } from '@fittrack/shared';
+import {
+  exerciseName,
+  formatDateKey,
+  periodSummary,
+  RECORD_LABELS,
+  startOfWeek,
+} from '@fittrack/shared';
 import { router } from 'expo-router';
 import { View } from 'react-native';
 import { HealthCard } from '../../components/HealthCard';
@@ -53,7 +59,12 @@ export default function Today() {
 
   const start = async (routineId?: string) => {
     if (draft?.isNew) {
-      const ok = await confirm('Replace workout in progress?', `“${draft.name}” hasn’t been saved yet. Starting a new workout discards it.`, 'Start new', true);
+      const ok = await confirm(
+        'Replace workout in progress?',
+        `“${draft.name}” hasn’t been saved yet. Starting a new workout discards it.`,
+        'Start new',
+        true,
+      );
       if (!ok) return;
     }
     router.push(newWorkoutHref(routineId));
@@ -77,18 +88,32 @@ export default function Today() {
           <Caption>Workout in progress</Caption>
           <Body style={{ fontWeight: '700' }}>{draft.name}</Body>
           <Body muted style={{ fontSize: 14 }}>
-            {draft.exercises.length} exercise{draft.exercises.length === 1 ? '' : 's'} · not saved yet
+            {draft.exercises.length} exercise{draft.exercises.length === 1 ? '' : 's'} · not saved
+            yet
           </Body>
           <Row>
-            <Button compact label="Resume" icon="play" onPress={() => router.push('/workout/new')} />
-            <Button compact variant="ghost" label="Discard" onPress={() => dispatch(draftDiscarded())} />
+            <Button
+              compact
+              label="Resume"
+              icon="play"
+              onPress={() => router.push('/workout/new')}
+            />
+            <Button
+              compact
+              variant="ghost"
+              label="Discard"
+              onPress={() => dispatch(draftDiscarded())}
+            />
           </Row>
         </Card>
       ) : null}
 
       {loadingHistory ? <LoadingState label="Loading your training history…" /> : null}
       {firstSync && !pulling && syncError && workouts.length === 0 ? (
-        <ErrorState message={`Couldn’t load your history. ${syncError}`} onRetry={() => dispatch(pullRequested())} />
+        <ErrorState
+          message={`Couldn’t load your history. ${syncError}`}
+          onRetry={() => dispatch(pullRequested())}
+        />
       ) : null}
 
       <Grid min={160}>
@@ -96,7 +121,11 @@ export default function Today() {
           icon="flame"
           label="Day streak"
           value={`${streaks.day.current} day${streaks.day.current === 1 ? '' : 's'}`}
-          sub={streaks.day.activeToday ? `Active today · best ${streaks.day.longest}` : 'Train or hit your step goal today'}
+          sub={
+            streaks.day.activeToday
+              ? `Active today · best ${streaks.day.longest}`
+              : 'Train or hit your step goal today'
+          }
           testID="day-streak"
         />
         <Stat
@@ -117,7 +146,12 @@ export default function Today() {
 
       <Heading>Start a workout</Heading>
       <Card style={{ gap: space.md }}>
-        <Button label="Start empty workout" icon="add" onPress={() => void start()} testID="start-empty" />
+        <Button
+          label="Start empty workout"
+          icon="add"
+          onPress={() => void start()}
+          testID="start-empty"
+        />
         {routines.map((r) => (
           <Row key={r.id} style={{ justifyContent: 'space-between' }}>
             <View style={{ flex: 1 }}>
@@ -126,11 +160,23 @@ export default function Today() {
                 {r.exercises.map((e) => exerciseName(e.exerciseId)).join(', ')}
               </Body>
             </View>
-            <Button compact variant="secondary" label="Start" accessibilityLabel={`Start ${r.name}`} onPress={() => void start(r.id)} />
+            <Button
+              compact
+              variant="secondary"
+              label="Start"
+              accessibilityLabel={`Start ${r.name}`}
+              onPress={() => void start(r.id)}
+            />
           </Row>
         ))}
         {routines.length === 0 ? (
-          <Button compact variant="ghost" icon="list-outline" label="Create a reusable routine" onPress={() => router.push('/routine/new')} />
+          <Button
+            compact
+            variant="ghost"
+            icon="list-outline"
+            label="Create a reusable routine"
+            onPress={() => router.push('/routine/new')}
+          />
         ) : null}
       </Card>
 
@@ -140,14 +186,19 @@ export default function Today() {
       {recentRecords.length ? (
         <Card testID="recent-prs">
           {recentRecords.map((e) => (
-            <Row key={`${e.workoutId}-${e.exerciseId}-${e.kind}`} style={{ justifyContent: 'space-between' }}>
+            <Row
+              key={`${e.workoutId}-${e.exerciseId}-${e.kind}`}
+              style={{ justifyContent: 'space-between' }}
+            >
               <View style={{ flex: 1 }}>
                 <Body style={{ fontWeight: '700' }}>{exerciseName(e.exerciseId)}</Body>
                 <Body muted style={{ fontSize: 13 }}>
                   {RECORD_LABELS[e.kind]} · {relativeDay(e.date, today)}
                 </Body>
               </View>
-              <Body style={{ fontWeight: '700' }}>{e.kind === 'reps' ? `${e.value} reps` : formatKg(e.value)}</Body>
+              <Body style={{ fontWeight: '700' }}>
+                {e.kind === 'reps' ? `${e.value} reps` : formatKg(e.value)}
+              </Body>
             </Row>
           ))}
         </Card>

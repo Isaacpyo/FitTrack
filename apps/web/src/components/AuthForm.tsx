@@ -22,12 +22,16 @@ interface AuthFormProps {
   submitLabel: string;
   fields: AuthField[];
   /** Validates locally and calls the API; returns field errors or a form-level error. */
-  onSubmit: (values: Record<string, string>) => Promise<{ fieldErrors?: Record<string, string>; error?: unknown } | void>;
+  onSubmit: (
+    values: Record<string, string>,
+  ) => Promise<{ fieldErrors?: Record<string, string>; error?: unknown } | void>;
   alternate: { prompt: string; label: string; href: '/login' | '/signup' };
 }
 
 export function AuthForm({ title, submitLabel, fields, onSubmit, alternate }: AuthFormProps) {
-  const [values, setValues] = useState<Record<string, string>>(() => Object.fromEntries(fields.map((f) => [f.name, ''])));
+  const [values, setValues] = useState<Record<string, string>>(() =>
+    Object.fromEntries(fields.map((f) => [f.name, ''])),
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -75,16 +79,30 @@ export function AuthForm({ title, submitLabel, fields, onSubmit, alternate }: Au
       </Card>
       <View style={{ gap: space.sm, alignItems: 'center' }}>
         <Text style={{ color: colors.textMuted }}>{alternate.prompt}</Text>
-        <Button variant="ghost" label={alternate.label} onPress={() => router.replace(alternate.href)} />
-        <Button variant="ghost" icon="play" label="Or try the demo" onPress={demo.start} loading={demo.isLoading} />
-        {demo.error ? <Body style={{ color: colors.danger }}>{describeApiError(demo.error)}</Body> : null}
+        <Button
+          variant="ghost"
+          label={alternate.label}
+          onPress={() => router.replace(alternate.href)}
+        />
+        <Button
+          variant="ghost"
+          icon="play"
+          label="Or try the demo"
+          onPress={demo.start}
+          loading={demo.isLoading}
+        />
+        {demo.error ? (
+          <Body style={{ color: colors.danger }}>{describeApiError(demo.error)}</Body>
+        ) : null}
       </View>
     </Screen>
   );
 }
 
 /** Map Zod issues to { field: firstMessage }. */
-export function fieldErrorsFrom(issues: { path: PropertyKey[]; message: string }[]): Record<string, string> {
+export function fieldErrorsFrom(
+  issues: { path: PropertyKey[]; message: string }[],
+): Record<string, string> {
   const out: Record<string, string> = {};
   for (const issue of issues) {
     const key = String(issue.path[0] ?? 'form');

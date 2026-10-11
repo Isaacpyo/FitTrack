@@ -65,11 +65,9 @@ export async function buildApp({
   });
 
   app.setNotFoundHandler((request, reply) =>
-    reply
-      .code(404)
-      .send({
-        error: { code: 'not_found', message: `No route for ${request.method} ${request.url}` },
-      }),
+    reply.code(404).send({
+      error: { code: 'not_found', message: `No route for ${request.method} ${request.url}` },
+    }),
   );
 
   await app.register(publicRoutes, { pool });

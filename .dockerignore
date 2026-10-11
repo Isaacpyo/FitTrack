@@ -1,0 +1,13 @@
+**/node_modules
+**/dist
+**/.expo
+**/coverage
+**/*.log
+.git
+.github
+test-results
+playwright-report
+apps/web/ios
+apps/web/android
+.env
+.env.*

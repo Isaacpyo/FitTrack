@@ -20,7 +20,11 @@ import { space } from '../../theme';
  * Edits live in a persisted draft, so nothing is lost if the app closes mid-workout.
  */
 export default function WorkoutEditor() {
-  const { id, routineId, start } = useLocalSearchParams<{ id: string; routineId?: string; start?: string }>();
+  const { id, routineId, start } = useLocalSearchParams<{
+    id: string;
+    routineId?: string;
+    start?: string;
+  }>();
   const dispatch = useAppDispatch();
   const store = useAppStore();
   const draft = useAppSelector((s) => s.draft.current);
@@ -45,7 +49,13 @@ export default function WorkoutEditor() {
       }
       dispatch(
         draftStarted(
-          newDraft({ id: newId(), now: new Date(), history: selectWorkouts(store.getState()), newId, routine: routine ?? null }),
+          newDraft({
+            id: newId(),
+            now: new Date(),
+            history: selectWorkouts(store.getState()),
+            newId,
+            routine: routine ?? null,
+          }),
         ),
       );
       initialised.current = routeKey;
@@ -61,7 +71,11 @@ export default function WorkoutEditor() {
     return (
       <Screen width="form">
         <ScreenHeader title="Workout" fallback="/history" />
-        <EmptyState icon="search-outline" title="Workout not found" body="It may have been deleted on another device." />
+        <EmptyState
+          icon="search-outline"
+          title="Workout not found"
+          body="It may have been deleted on another device."
+        />
       </Screen>
     );
   }
@@ -81,7 +95,9 @@ export default function WorkoutEditor() {
   const discard = async () => {
     const ok = await confirm(
       isNew ? 'Discard workout?' : 'Discard changes?',
-      isNew ? 'Everything you entered for this workout will be lost.' : 'Your saved workout stays as it was.',
+      isNew
+        ? 'Everything you entered for this workout will be lost.'
+        : 'Your saved workout stays as it was.',
       'Discard',
       true,
     );
@@ -92,14 +108,24 @@ export default function WorkoutEditor() {
   };
 
   const remove = async () => {
-    if (!(await confirm('Delete workout?', `“${editing.name}” will be removed from your history on all devices.`, 'Delete', true))) return;
+    if (
+      !(await confirm(
+        'Delete workout?',
+        `“${editing.name}” will be removed from your history on all devices.`,
+        'Delete',
+        true,
+      ))
+    )
+      return;
     dispatch(deleteWorkout(editing.id));
     router.replace('/history');
   };
 
   const addExercise = (exerciseId: string) => {
     setPickerOpen(false);
-    dispatch(exerciseAdded({ key: newId(), exerciseId, sets: prefillSets(exerciseId, workouts, newId) }));
+    dispatch(
+      exerciseAdded({ key: newId(), exerciseId, sets: prefillSets(exerciseId, workouts, newId) }),
+    );
   };
 
   return (
@@ -109,14 +135,29 @@ export default function WorkoutEditor() {
       footer={
         <>
           <Button variant="ghost" label="Discard" onPress={discard} />
-          <Button label="Save workout" icon="checkmark" onPress={save} style={{ flexGrow: 1, maxWidth: 260 }} testID="save-workout" />
+          <Button
+            label="Save workout"
+            icon="checkmark"
+            onPress={save}
+            style={{ flexGrow: 1, maxWidth: 260 }}
+            testID="save-workout"
+          />
         </>
       }
     >
       <ScreenHeader
         title={isNew ? 'Log workout' : 'Edit workout'}
         fallback={isNew ? '/today' : '/history'}
-        actions={!isNew ? <IconButton icon="trash-outline" label="Delete workout" color="#F87171" onPress={remove} /> : null}
+        actions={
+          !isNew ? (
+            <IconButton
+              icon="trash-outline"
+              label="Delete workout"
+              color="#F87171"
+              onPress={remove}
+            />
+          ) : null
+        }
       />
 
       {message ? (
@@ -126,7 +167,12 @@ export default function WorkoutEditor() {
       ) : null}
 
       <Card style={{ gap: space.md }}>
-        <TextField label="Workout name" value={editing.name} onChangeText={(value) => dispatch(fieldChanged({ field: 'name', value }))} error={errors.name} />
+        <TextField
+          label="Workout name"
+          value={editing.name}
+          onChangeText={(value) => dispatch(fieldChanged({ field: 'name', value }))}
+          error={errors.name}
+        />
         <View style={{ flexDirection: 'row', gap: space.md, flexWrap: 'wrap' }}>
           <TextField
             style={{ flexGrow: 1, flexBasis: 150 }}
@@ -159,7 +205,11 @@ export default function WorkoutEditor() {
       </Card>
 
       {editing.exercises.length === 0 ? (
-        <EmptyState icon="barbell-outline" title="No exercises yet" body="Add the exercises you’re doing. Sets are prefilled from last time." />
+        <EmptyState
+          icon="barbell-outline"
+          title="No exercises yet"
+          body="Add the exercises you’re doing. Sets are prefilled from last time."
+        />
       ) : (
         editing.exercises.map((ex, i) => (
           <ExerciseEditor
@@ -174,8 +224,18 @@ export default function WorkoutEditor() {
         ))
       )}
 
-      <Button variant="secondary" icon="add" label="Add exercise" onPress={() => setPickerOpen(true)} testID="add-exercise" />
-      <ExercisePicker visible={pickerOpen} onClose={() => setPickerOpen(false)} onPick={addExercise} />
+      <Button
+        variant="secondary"
+        icon="add"
+        label="Add exercise"
+        onPress={() => setPickerOpen(true)}
+        testID="add-exercise"
+      />
+      <ExercisePicker
+        visible={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onPick={addExercise}
+      />
     </Screen>
   );
 }

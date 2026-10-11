@@ -11,7 +11,10 @@ export const user: User = {
   createdAt: '2026-09-01T00:00:00.000Z',
 };
 
-export function workoutInput(id: string = randomUUID(), overrides: Partial<WorkoutInput> = {}): WorkoutInput {
+export function workoutInput(
+  id: string = randomUUID(),
+  overrides: Partial<WorkoutInput> = {},
+): WorkoutInput {
   return {
     id,
     name: 'Push Day',

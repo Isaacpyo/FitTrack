@@ -18,7 +18,14 @@ interface BarChartProps {
 }
 
 /** Single-series columns: ≤24px wide, 4px rounded data-end, square baseline, 2px gaps. */
-export function BarChart({ data, summary, valueHeader, reference, height = 200, testID }: BarChartProps) {
+export function BarChart({
+  data,
+  summary,
+  valueHeader,
+  reference,
+  height = 200,
+  testID,
+}: BarChartProps) {
   const max = Math.max(...data.map((d) => d.value), reference?.value ?? 0, 1);
   const ticks = niceTicks(0, max, 3);
   const hi = ticks[ticks.length - 1]!;
@@ -51,10 +58,26 @@ export function BarChart({ data, summary, valueHeader, reference, height = 200, 
         return (
           <Svg width={width} height={height}>
             {ticks.map((t) => (
-              <Line key={t} x1={PAD.left} x2={PAD.left + plotW} y1={y(t)} y2={y(t)} stroke={t === 0 ? colors.chartAxis : colors.chartGrid} strokeWidth={1} />
+              <Line
+                key={t}
+                x1={PAD.left}
+                x2={PAD.left + plotW}
+                y1={y(t)}
+                y2={y(t)}
+                stroke={t === 0 ? colors.chartAxis : colors.chartGrid}
+                strokeWidth={1}
+              />
             ))}
             {ticks.map((t) => (
-              <SvgText key={`l${t}`} x={PAD.left - 8} y={y(t) + 4} fontSize={11} fontFamily={chartFont} fill={colors.textMuted} textAnchor="end">
+              <SvgText
+                key={`l${t}`}
+                x={PAD.left - 8}
+                y={y(t) + 4}
+                fontSize={11}
+                fontFamily={chartFont}
+                fill={colors.textMuted}
+                textAnchor="end"
+              >
                 {compactNumber(t)}
               </SvgText>
             ))}
@@ -67,14 +90,37 @@ export function BarChart({ data, summary, valueHeader, reference, height = 200, 
             ))}
             {reference ? (
               <>
-                <Line x1={PAD.left} x2={PAD.left + plotW} y1={y(reference.value)} y2={y(reference.value)} stroke={colors.text} strokeOpacity={0.6} strokeWidth={1} />
-                <SvgText x={PAD.left + plotW} y={y(reference.value) - 5} fontSize={11} fontFamily={chartFont} fill={colors.text} textAnchor="end">
+                <Line
+                  x1={PAD.left}
+                  x2={PAD.left + plotW}
+                  y1={y(reference.value)}
+                  y2={y(reference.value)}
+                  stroke={colors.text}
+                  strokeOpacity={0.6}
+                  strokeWidth={1}
+                />
+                <SvgText
+                  x={PAD.left + plotW}
+                  y={y(reference.value) - 5}
+                  fontSize={11}
+                  fontFamily={chartFont}
+                  fill={colors.text}
+                  textAnchor="end"
+                >
                   {reference.label}
                 </SvgText>
               </>
             ) : null}
             {labelIndices(data.length, plotW, 44).map((i) => (
-              <SvgText key={`x${i}`} x={cx(i)} y={height - 6} fontSize={11} fontFamily={chartFont} fill={colors.textMuted} textAnchor="middle">
+              <SvgText
+                key={`x${i}`}
+                x={cx(i)}
+                y={height - 6}
+                fontSize={11}
+                fontFamily={chartFont}
+                fill={colors.textMuted}
+                textAnchor="middle"
+              >
                 {data[i]!.label}
               </SvgText>
             ))}

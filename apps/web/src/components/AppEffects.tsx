@@ -17,7 +17,10 @@ export function AppEffects() {
   const healthConnected = useAppSelector((s) => s.activity.healthConnected);
   const lastHealthSync = useAppSelector((s) => s.activity.lastHealthSyncAt);
 
-  useEffect(() => subscribeToConnectivity((online) => dispatch(connectivityChanged(online))), [dispatch]);
+  useEffect(
+    () => subscribeToConnectivity((online) => dispatch(connectivityChanged(online))),
+    [dispatch],
+  );
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {

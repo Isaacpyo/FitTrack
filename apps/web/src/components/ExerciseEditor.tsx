@@ -1,9 +1,21 @@
-import { exerciseName, EXERCISES_BY_ID, formatShortDate, lastPerformance, type Workout } from '@fittrack/shared';
+import {
+  exerciseName,
+  EXERCISES_BY_ID,
+  formatShortDate,
+  lastPerformance,
+  type Workout,
+} from '@fittrack/shared';
 import { StyleSheet, Text, View } from 'react-native';
 import { newId } from '../lib/ids';
 import { summariseSets } from '../lib/format';
 import type { DraftErrors, DraftExercise } from '../store/draft';
-import { exerciseMoved, exerciseRemoved, setAdded, setChanged, setRemoved } from '../store/draftSlice';
+import {
+  exerciseMoved,
+  exerciseRemoved,
+  setAdded,
+  setChanged,
+  setRemoved,
+} from '../store/draftSlice';
 import { useAppDispatch } from '../store/hooks';
 import { colors, space } from '../theme';
 import { Body, Button, Card, IconButton, Row, TextField } from './ui';
@@ -30,7 +42,11 @@ export function ExerciseEditor({ exercise, index, count, history, draftId, error
     dispatch(
       setAdded({
         exerciseKey: exercise.key,
-        set: { id: newId(), weightKg: prev?.weightKg ?? (bodyweight ? '0' : ''), reps: prev?.reps ?? '' },
+        set: {
+          id: newId(),
+          weightKg: prev?.weightKg ?? (bodyweight ? '0' : ''),
+          reps: prev?.reps ?? '',
+        },
       }),
     );
   };
@@ -43,15 +59,36 @@ export function ExerciseEditor({ exercise, index, count, history, draftId, error
             {name}
           </Text>
           <Body muted style={{ fontSize: 13 }}>
-            {last ? `Last time (${formatShortDate(last.date)}): ${summariseSets(last.sets)}` : 'First time logging this exercise'}
+            {last
+              ? `Last time (${formatShortDate(last.date)}): ${summariseSets(last.sets)}`
+              : 'First time logging this exercise'}
           </Body>
         </View>
-        <IconButton icon="arrow-up" label={`Move ${name} up`} disabled={index === 0} onPress={() => dispatch(exerciseMoved({ key: exercise.key, direction: -1 }))} />
-        <IconButton icon="arrow-down" label={`Move ${name} down`} disabled={index === count - 1} onPress={() => dispatch(exerciseMoved({ key: exercise.key, direction: 1 }))} />
-        <IconButton icon="trash-outline" label={`Remove ${name}`} color={colors.danger} onPress={() => dispatch(exerciseRemoved(exercise.key))} />
+        <IconButton
+          icon="arrow-up"
+          label={`Move ${name} up`}
+          disabled={index === 0}
+          onPress={() => dispatch(exerciseMoved({ key: exercise.key, direction: -1 }))}
+        />
+        <IconButton
+          icon="arrow-down"
+          label={`Move ${name} down`}
+          disabled={index === count - 1}
+          onPress={() => dispatch(exerciseMoved({ key: exercise.key, direction: 1 }))}
+        />
+        <IconButton
+          icon="trash-outline"
+          label={`Remove ${name}`}
+          color={colors.danger}
+          onPress={() => dispatch(exerciseRemoved(exercise.key))}
+        />
       </Row>
 
-      <View style={styles.headerRow} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <View
+        style={styles.headerRow}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
         <Text style={[styles.col, styles.setCol]}>Set</Text>
         <Text style={[styles.col, styles.inputCol]}>{bodyweight ? '+kg' : 'kg'}</Text>
         <Text style={[styles.col, styles.inputCol]}>Reps</Text>
@@ -64,7 +101,11 @@ export function ExerciseEditor({ exercise, index, count, history, draftId, error
             hideLabel
             label={`${name} set ${i + 1} weight (kg)`}
             value={set.weightKg}
-            onChangeText={(value) => dispatch(setChanged({ exerciseKey: exercise.key, setId: set.id, field: 'weightKg', value }))}
+            onChangeText={(value) =>
+              dispatch(
+                setChanged({ exerciseKey: exercise.key, setId: set.id, field: 'weightKg', value }),
+              )
+            }
             keyboardType="decimal-pad"
             placeholder="0"
             error={errors[`set:${set.id}:weightKg`]}
@@ -75,18 +116,35 @@ export function ExerciseEditor({ exercise, index, count, history, draftId, error
             hideLabel
             label={`${name} set ${i + 1} reps`}
             value={set.reps}
-            onChangeText={(value) => dispatch(setChanged({ exerciseKey: exercise.key, setId: set.id, field: 'reps', value }))}
+            onChangeText={(value) =>
+              dispatch(
+                setChanged({ exerciseKey: exercise.key, setId: set.id, field: 'reps', value }),
+              )
+            }
             keyboardType="number-pad"
             placeholder="0"
             error={errors[`set:${set.id}:reps`]}
             style={styles.inputCol}
             inputStyle={styles.input}
           />
-          <IconButton icon="close" label={`Remove ${name} set ${i + 1}`} onPress={() => dispatch(setRemoved({ exerciseKey: exercise.key, setId: set.id }))} />
+          <IconButton
+            icon="close"
+            label={`Remove ${name} set ${i + 1}`}
+            onPress={() => dispatch(setRemoved({ exerciseKey: exercise.key, setId: set.id }))}
+          />
         </View>
       ))}
-      {exerciseError ? <Body style={{ color: colors.danger, fontSize: 13 }}>{exerciseError}</Body> : null}
-      <Button compact variant="ghost" icon="add" label="Add set" accessibilityLabel={`Add set to ${name}`} onPress={addSet} />
+      {exerciseError ? (
+        <Body style={{ color: colors.danger, fontSize: 13 }}>{exerciseError}</Body>
+      ) : null}
+      <Button
+        compact
+        variant="ghost"
+        icon="add"
+        label="Add set"
+        accessibilityLabel={`Add set to ${name}`}
+        onPress={addSet}
+      />
     </Card>
   );
 }

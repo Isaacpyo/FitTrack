@@ -15,7 +15,8 @@ let cached: Promise<HealthProvider> | null = null;
 export function getHealthProvider(): Promise<HealthProvider> {
   cached ??= (async () => {
     const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
-    if (Platform.OS === 'web' || isExpoGo || HEALTH_PROVIDER_OVERRIDE === 'mock') return createMockProvider();
+    if (Platform.OS === 'web' || isExpoGo || HEALTH_PROVIDER_OVERRIDE === 'mock')
+      return createMockProvider();
     return (await loadNativeProvider()) ?? createMockProvider();
   })();
   return cached;

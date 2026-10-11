@@ -5,7 +5,16 @@ import { View } from 'react-native';
 import { ExercisePicker } from '../../components/ExercisePicker';
 import { Screen } from '../../components/Screen';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { Banner, Body, Button, Card, EmptyState, IconButton, Row, TextField } from '../../components/ui';
+import {
+  Banner,
+  Body,
+  Button,
+  Card,
+  EmptyState,
+  IconButton,
+  Row,
+  TextField,
+} from '../../components/ui';
 import { confirm } from '../../lib/confirm';
 import { newId } from '../../lib/ids';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -49,12 +58,17 @@ export default function RoutineEditor() {
     return (
       <Screen width="form">
         <ScreenHeader title="Routine" fallback="/routines" />
-        <EmptyState icon="search-outline" title="Routine not found" body="It may have been deleted on another device." />
+        <EmptyState
+          icon="search-outline"
+          title="Routine not found"
+          body="It may have been deleted on another device."
+        />
       </Screen>
     );
   }
 
-  const update = (key: string, patch: Partial<Row_>) => setRows((rs) => rs.map((r) => (r.key === key ? { ...r, ...patch } : r)));
+  const update = (key: string, patch: Partial<Row_>) =>
+    setRows((rs) => rs.map((r) => (r.key === key ? { ...r, ...patch } : r)));
 
   const save = () => {
     const candidate = {
@@ -74,7 +88,8 @@ export default function RoutineEditor() {
       const next: Record<string, string> = {};
       for (const issue of parsed.error.issues) {
         const [first, index, field] = issue.path;
-        if (first === 'exercises' && typeof index === 'number' && rows[index]) next[`${rows[index]!.key}:${String(field)}`] ??= issue.message;
+        if (first === 'exercises' && typeof index === 'number' && rows[index])
+          next[`${rows[index]!.key}:${String(field)}`] ??= issue.message;
         else next[String(first)] ??= issue.message;
       }
       setErrors(next);
@@ -87,7 +102,15 @@ export default function RoutineEditor() {
   };
 
   const remove = async () => {
-    if (!(await confirm('Delete routine?', `“${name}” will be deleted. Past workouts are kept.`, 'Delete', true))) return;
+    if (
+      !(await confirm(
+        'Delete routine?',
+        `“${name}” will be deleted. Past workouts are kept.`,
+        'Delete',
+        true,
+      ))
+    )
+      return;
     dispatch(deleteRoutine(routineId));
     goBack();
   };
@@ -99,14 +122,28 @@ export default function RoutineEditor() {
       footer={
         <>
           <Button variant="ghost" label="Cancel" onPress={goBack} />
-          <Button label="Save routine" icon="checkmark" onPress={save} style={{ flexGrow: 1, maxWidth: 260 }} />
+          <Button
+            label="Save routine"
+            icon="checkmark"
+            onPress={save}
+            style={{ flexGrow: 1, maxWidth: 260 }}
+          />
         </>
       }
     >
       <ScreenHeader
         title={isNew ? 'New routine' : 'Edit routine'}
         fallback="/routines"
-        actions={!isNew ? <IconButton icon="trash-outline" label="Delete routine" color={colors.danger} onPress={remove} /> : null}
+        actions={
+          !isNew ? (
+            <IconButton
+              icon="trash-outline"
+              label="Delete routine"
+              color={colors.danger}
+              onPress={remove}
+            />
+          ) : null
+        }
       />
       {message ? (
         <Banner tone="danger" icon="alert-circle-outline">
@@ -114,8 +151,21 @@ export default function RoutineEditor() {
         </Banner>
       ) : null}
       <Card style={{ gap: space.md }}>
-        <TextField label="Routine name" value={name} onChangeText={setName} error={errors.name} placeholder="e.g. Upper body" />
-        <TextField label="Notes" value={notes} onChangeText={setNotes} placeholder="Optional" multiline maxLength={1000} />
+        <TextField
+          label="Routine name"
+          value={name}
+          onChangeText={setName}
+          error={errors.name}
+          placeholder="e.g. Upper body"
+        />
+        <TextField
+          label="Notes"
+          value={notes}
+          onChangeText={setNotes}
+          placeholder="Optional"
+          multiline
+          maxLength={1000}
+        />
       </Card>
       {rows.map((r, i) => {
         const exName = exerciseName(r.exerciseId);
@@ -125,17 +175,49 @@ export default function RoutineEditor() {
               <Body style={{ fontWeight: '700', flex: 1 }}>
                 {i + 1}. {exName}
               </Body>
-              <IconButton icon="trash-outline" label={`Remove ${exName}`} color={colors.danger} onPress={() => setRows((rs) => rs.filter((x) => x.key !== r.key))} />
+              <IconButton
+                icon="trash-outline"
+                label={`Remove ${exName}`}
+                color={colors.danger}
+                onPress={() => setRows((rs) => rs.filter((x) => x.key !== r.key))}
+              />
             </Row>
             <View style={{ flexDirection: 'row', gap: space.sm }}>
-              <TextField style={{ flex: 1 }} label="Sets" value={r.sets} onChangeText={(sets) => update(r.key, { sets })} keyboardType="number-pad" error={errors[`${r.key}:targetSets`] && '1–20'} />
-              <TextField style={{ flex: 1 }} label="Reps" value={r.reps} onChangeText={(reps) => update(r.key, { reps })} keyboardType="number-pad" error={errors[`${r.key}:targetReps`] && '1–100'} />
-              <TextField style={{ flex: 1 }} label="kg" value={r.weight} onChangeText={(weight) => update(r.key, { weight })} keyboardType="decimal-pad" placeholder="—" error={errors[`${r.key}:targetWeightKg`] && '0–1000'} />
+              <TextField
+                style={{ flex: 1 }}
+                label="Sets"
+                value={r.sets}
+                onChangeText={(sets) => update(r.key, { sets })}
+                keyboardType="number-pad"
+                error={errors[`${r.key}:targetSets`] && '1–20'}
+              />
+              <TextField
+                style={{ flex: 1 }}
+                label="Reps"
+                value={r.reps}
+                onChangeText={(reps) => update(r.key, { reps })}
+                keyboardType="number-pad"
+                error={errors[`${r.key}:targetReps`] && '1–100'}
+              />
+              <TextField
+                style={{ flex: 1 }}
+                label="kg"
+                value={r.weight}
+                onChangeText={(weight) => update(r.key, { weight })}
+                keyboardType="decimal-pad"
+                placeholder="—"
+                error={errors[`${r.key}:targetWeightKg`] && '0–1000'}
+              />
             </View>
           </Card>
         );
       })}
-      <Button variant="secondary" icon="add" label="Add exercise" onPress={() => setPickerOpen(true)} />
+      <Button
+        variant="secondary"
+        icon="add"
+        label="Add exercise"
+        onPress={() => setPickerOpen(true)}
+      />
       <ExercisePicker
         visible={pickerOpen}
         onClose={() => setPickerOpen(false)}

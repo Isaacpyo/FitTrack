@@ -27,7 +27,10 @@ export type AppStore = ReturnType<typeof makeStore>;
 
 /** Restore the persisted session and data, then start syncing. */
 export async function createAppStore(deps: StoreDeps): Promise<AppStore> {
-  const [persisted, token] = await Promise.all([loadPersisted(deps.storage), deps.tokenStorage.get().catch(() => null)]);
+  const [persisted, token] = await Promise.all([
+    loadPersisted(deps.storage),
+    deps.tokenStorage.get().catch(() => null),
+  ]);
   const store = makeStore(deps, toPreloadedState(persisted, token));
   persistStore(store, deps.storage);
   store.dispatch(hydrated());

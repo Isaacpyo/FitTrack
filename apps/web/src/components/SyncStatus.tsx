@@ -11,15 +11,25 @@ export function SyncStatusChip() {
   const pending = useAppSelector(selectPendingCount);
   const failed = useAppSelector(selectFailedCount);
 
-  const badge = failed
-    ? <Badge tone="danger" icon="alert-circle" label={`${failed} failed`} />
-    : !online
-      ? <Badge tone="warning" icon="cloud-offline" label={pending ? `Offline · ${pending} pending` : 'Offline'} />
-      : pending
-        ? <Badge tone="info" icon="cloud-upload" label={busy ? `Syncing ${pending}…` : `${pending} pending`} />
-        : busy
-          ? <Badge tone="info" icon="sync" label="Syncing…" />
-          : <Badge tone="success" icon="cloud-done" label="Synced" />;
+  const badge = failed ? (
+    <Badge tone="danger" icon="alert-circle" label={`${failed} failed`} />
+  ) : !online ? (
+    <Badge
+      tone="warning"
+      icon="cloud-offline"
+      label={pending ? `Offline · ${pending} pending` : 'Offline'}
+    />
+  ) : pending ? (
+    <Badge
+      tone="info"
+      icon="cloud-upload"
+      label={busy ? `Syncing ${pending}…` : `${pending} pending`}
+    />
+  ) : busy ? (
+    <Badge tone="info" icon="sync" label="Syncing…" />
+  ) : (
+    <Badge tone="success" icon="cloud-done" label="Synced" />
+  );
 
   return (
     <Pressable

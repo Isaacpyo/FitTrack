@@ -13,7 +13,13 @@ export default function Signup() {
       fields={[
         { name: 'displayName', label: 'Name', autoComplete: 'name' },
         { name: 'email', label: 'Email', autoComplete: 'email', keyboardType: 'email-address' },
-        { name: 'password', label: 'Password', secure: true, autoComplete: 'new-password', hint: 'At least 8 characters' },
+        {
+          name: 'password',
+          label: 'Password',
+          secure: true,
+          autoComplete: 'new-password',
+          hint: 'At least 8 characters',
+        },
       ]}
       alternate={{ prompt: 'Already have an account?', label: 'Sign in', href: '/login' }}
       onSubmit={async (values) => {

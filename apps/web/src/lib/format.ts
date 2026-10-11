@@ -33,7 +33,12 @@ export function summariseSets(sets: Pick<WorkoutSet, 'reps' | 'weightKg'>[]): st
   const weights = sets.map((s) => s.weightKg);
   const min = Math.min(...weights);
   const max = Math.max(...weights);
-  const load = max === 0 ? 'bodyweight' : min === max ? formatKg(max) : `${formatKg(min).replace(' kg', '')}–${formatKg(max)}`;
+  const load =
+    max === 0
+      ? 'bodyweight'
+      : min === max
+        ? formatKg(max)
+        : `${formatKg(min).replace(' kg', '')}–${formatKg(max)}`;
   const uniform = reps.every((r) => r === reps[0]);
   return `${uniform ? `${sets.length} × ${reps[0]}` : reps.join(', ')} @ ${load}`;
 }

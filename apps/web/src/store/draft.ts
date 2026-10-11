@@ -58,9 +58,16 @@ export function prefillSets(
   const count = target?.sets ?? last?.sets.length ?? 1;
   return Array.from({ length: count }, (_, i) => {
     const previous = last?.sets[Math.min(i, last.sets.length - 1)];
-    const weight = previous?.weightKg ?? target?.weightKg ?? (EXERCISES_BY_ID.get(exerciseId)?.bodyweight ? 0 : null);
+    const weight =
+      previous?.weightKg ??
+      target?.weightKg ??
+      (EXERCISES_BY_ID.get(exerciseId)?.bodyweight ? 0 : null);
     const reps = target?.reps ?? previous?.reps ?? null;
-    return { id: newId(), weightKg: weight === null ? '' : fmt(weight), reps: reps === null ? '' : String(reps) };
+    return {
+      id: newId(),
+      weightKg: weight === null ? '' : fmt(weight),
+      reps: reps === null ? '' : String(reps),
+    };
   });
 }
 
@@ -114,7 +121,8 @@ export function draftFromWorkout(w: Workout, newId: () => string): Draft {
 /** Field errors keyed `name`, `date`, `durationMin`, `set:<id>:reps`, `set:<id>:weightKg`, `exercise:<key>`. */
 export type DraftErrors = Record<string, string>;
 
-export type DraftResult = { ok: true; workout: WorkoutInput } | { ok: false; message: string; errors: DraftErrors };
+export type DraftResult =
+  { ok: true; workout: WorkoutInput } | { ok: false; message: string; errors: DraftErrors };
 
 function parseNumber(input: string): number | null {
   const s = input.trim().replace(',', '.');
@@ -157,7 +165,11 @@ export function draftToWorkout(draft: Draft, now: Date): DraftResult {
       if (weight !== null && (Number.isNaN(weight) || weight < 0 || weight > 1000)) {
         errors[`set:${s.id}:weightKg`] = '0–1000 kg';
       }
-      return { id: s.id, reps: reps ?? 0, weightKg: weight === null || Number.isNaN(weight) ? 0 : weight };
+      return {
+        id: s.id,
+        reps: reps ?? 0,
+        weightKg: weight === null || Number.isNaN(weight) ? 0 : weight,
+      };
     }),
   }));
   draft.exercises.forEach((ex) => {
@@ -180,14 +192,16 @@ export function draftToWorkout(draft: Draft, now: Date): DraftResult {
     for (const issue of parsed.error.issues) {
       const [first] = issue.path;
       if (first === 'name' && !errors.name) errors.name = issue.message;
-      if (first === 'exercises' && issue.path.length === 1 && !errors.exercises) errors.exercises = issue.message;
+      if (first === 'exercises' && issue.path.length === 1 && !errors.exercises)
+        errors.exercises = issue.message;
     }
   }
 
   const count = Object.keys(errors).length;
   if (count > 0 || !parsed.success) {
     const message =
-      errors.exercises ?? (count === 1 ? Object.values(errors)[0]! : `Please fix ${count || 'the'} highlighted fields`);
+      errors.exercises ??
+      (count === 1 ? Object.values(errors)[0]! : `Please fix ${count || 'the'} highlighted fields`);
     return { ok: false, message, errors };
   }
   return { ok: true, workout: parsed.data };

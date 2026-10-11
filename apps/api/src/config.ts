@@ -77,7 +77,11 @@ function loadDotEnv(): void {
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   if (env === process.env) loadDotEnv();
-  const parsed = envSchema.safeParse(env);
+  // `KEY=` lines in .env files mean "unset", not "empty string".
+  const defined = Object.fromEntries(
+    Object.entries(env).filter(([, v]) => v !== undefined && v !== ''),
+  );
+  const parsed = envSchema.safeParse(defined);
   if (!parsed.success) {
     const problems = parsed.error.issues
       .map((i) => `  - ${i.path.join('.')}: ${i.message}`)

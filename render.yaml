@@ -1,0 +1,40 @@
+# Render Blueprint for the FitTrack API (free web service).
+# New → Blueprint → select this repo. Render prompts for the values marked `sync: false`.
+services:
+  - type: web
+    name: fittrack-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: main
+    autoDeploy: true
+    buildFilter:
+      paths:
+        - apps/api/**
+        - packages/shared/**
+        - package.json
+        - package-lock.json
+        - render.yaml
+    # Dev dependencies (tsup) are needed to build even though NODE_ENV is production.
+    buildCommand: npm ci --include=dev --workspace @fittrack/api --workspace @fittrack/shared && npm run build -w @fittrack/api
+    # Applies pending migrations and syncs the exercise catalog on every boot.
+    startCommand: npm run start -w @fittrack/api
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: '22'
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        # Neon pooled connection string, e.g. postgres://user:pass@ep-xxx-pooler.eu-central-1.aws.neon.tech/fittrack?sslmode=require
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        # Comma-separated. Add your Netlify deploy-preview pattern if you use previews,
+        # e.g. https://*--<netlify-site-name>.netlify.app
+        value: https://fittrack.temitopeagbola.com
+      - key: DEMO_TTL_HOURS
+        value: '24'
+      - key: DATABASE_POOL_MAX
+        value: '5'

@@ -16,10 +16,27 @@ import { BarChart } from '../../components/charts/BarChart';
 import type { ChartDatum } from '../../components/charts/ChartShell';
 import { LineChart } from '../../components/charts/LineChart';
 import { Screen } from '../../components/Screen';
-import { Body, Caption, Card, Chip, EmptyState, Grid, Heading, Row, Stat, Title } from '../../components/ui';
+import {
+  Body,
+  Caption,
+  Card,
+  Chip,
+  EmptyState,
+  Grid,
+  Heading,
+  Row,
+  Stat,
+  Title,
+} from '../../components/ui';
 import { formatKg, formatNumber, formatVolume } from '../../lib/format';
 import { useAppSelector, useToday } from '../../store/hooks';
-import { selectActivity, selectExerciseUsage, selectRecordAnalysis, selectStepGoal, selectWorkouts } from '../../store/selectors';
+import {
+  selectActivity,
+  selectExerciseUsage,
+  selectRecordAnalysis,
+  selectStepGoal,
+  selectWorkouts,
+} from '../../store/selectors';
 import { space } from '../../theme';
 
 const MAX_POINTS = 20;
@@ -68,18 +85,30 @@ export default function Progress() {
     const byDate = new Map(activity.map((a) => [a.date, a]));
     return dateRange(addDays(today, -13), today).map((d) => {
       const steps = byDate.get(d)?.steps ?? 0;
-      return { key: d, label: formatShortDate(d), value: steps, display: `${formatNumber(steps)} steps`, description: formatDateKey(d) };
+      return {
+        key: d,
+        label: formatShortDate(d),
+        value: steps,
+        display: `${formatNumber(steps)} steps`,
+        description: formatDateKey(d),
+      };
     });
   }, [activity, today]);
 
   const exerciseRecords = exerciseId ? records.get(exerciseId) : undefined;
-  const allRecords = [...records.values()].sort((a, b) => b.lastPerformed.localeCompare(a.lastPerformed));
+  const allRecords = [...records.values()].sort((a, b) =>
+    b.lastPerformed.localeCompare(a.lastPerformed),
+  );
 
   if (workouts.length === 0 && activity.length === 0) {
     return (
       <Screen testID="progress-screen">
         <Title>Progress</Title>
-        <EmptyState icon="stats-chart-outline" title="Nothing to chart yet" body="Log a few workouts and your strength curve, weekly volume and records will appear here." />
+        <EmptyState
+          icon="stats-chart-outline"
+          title="Nothing to chart yet"
+          body="Log a few workouts and your strength curve, weekly volume and records will appear here."
+        />
       </Screen>
     );
   }
@@ -95,11 +124,22 @@ export default function Progress() {
         <Card>
           <Heading>{exerciseName(exerciseId)}</Heading>
           <Body muted style={{ fontSize: 14 }}>
-            {bodyweight ? 'Best set (reps) per session' : 'Estimated one-rep max per session (Epley)'}
+            {bodyweight
+              ? 'Best set (reps) per session'
+              : 'Estimated one-rep max per session (Epley)'}
           </Body>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }} accessibilityRole="tablist" accessibilityLabel="Choose exercise">
+          <View
+            style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}
+            accessibilityRole="tablist"
+            accessibilityLabel="Choose exercise"
+          >
             {usage.slice(0, 8).map((u) => (
-              <Chip key={u.exerciseId} label={exerciseName(u.exerciseId)} selected={u.exerciseId === exerciseId} onPress={() => setPicked(u.exerciseId)} />
+              <Chip
+                key={u.exerciseId}
+                label={exerciseName(u.exerciseId)}
+                selected={u.exerciseId === exerciseId}
+                onPress={() => setPicked(u.exerciseId)}
+              />
             ))}
           </View>
           {progressData.length > 0 && first && last ? (
@@ -125,7 +165,11 @@ export default function Progress() {
                     />
                   );
                 })}
-              <Stat label="Sessions" value={String(exerciseRecords.sessions)} sub={`Last: ${formatShortDate(exerciseRecords.lastPerformed)}`} />
+              <Stat
+                label="Sessions"
+                value={String(exerciseRecords.sessions)}
+                sub={`Last: ${formatShortDate(exerciseRecords.lastPerformed)}`}
+              />
             </Grid>
           ) : null}
         </Card>
@@ -165,12 +209,17 @@ export default function Progress() {
             const main = r.records.e1rm ?? r.records.weight ?? r.records.reps;
             const kind = r.records.e1rm ? 'e1rm' : r.records.weight ? 'weight' : 'reps';
             return (
-              <Row key={r.exerciseId} style={{ justifyContent: 'space-between', paddingVertical: 4 }}>
+              <Row
+                key={r.exerciseId}
+                style={{ justifyContent: 'space-between', paddingVertical: 4 }}
+              >
                 <View style={{ flex: 1 }}>
                   <Body style={{ fontWeight: '700' }}>{exerciseName(r.exerciseId)}</Body>
                   <Caption>{RECORD_LABELS[kind]}</Caption>
                 </View>
-                <Body style={{ fontWeight: '700' }}>{main ? (kind === 'reps' ? `${main.value} reps` : formatKg(main.value)) : '—'}</Body>
+                <Body style={{ fontWeight: '700' }}>
+                  {main ? (kind === 'reps' ? `${main.value} reps` : formatKg(main.value)) : '—'}
+                </Body>
               </Row>
             );
           })}

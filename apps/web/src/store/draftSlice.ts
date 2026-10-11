@@ -24,7 +24,8 @@ const draftSlice = createSlice({
       state.current?.exercises.push(action.payload);
     },
     exerciseRemoved(state, action: PayloadAction<string>) {
-      if (state.current) state.current.exercises = state.current.exercises.filter((e) => e.key !== action.payload);
+      if (state.current)
+        state.current.exercises = state.current.exercises.filter((e) => e.key !== action.payload);
     },
     exerciseMoved(state, action: PayloadAction<{ key: string; direction: -1 | 1 }>) {
       const list = state.current?.exercises;
@@ -36,7 +37,9 @@ const draftSlice = createSlice({
       list.splice(to, 0, moved!);
     },
     setAdded(state, action: PayloadAction<{ exerciseKey: string; set: DraftSet }>) {
-      state.current?.exercises.find((e) => e.key === action.payload.exerciseKey)?.sets.push(action.payload.set);
+      state.current?.exercises
+        .find((e) => e.key === action.payload.exerciseKey)
+        ?.sets.push(action.payload.set);
     },
     setRemoved(state, action: PayloadAction<{ exerciseKey: string; setId: string }>) {
       const ex = state.current?.exercises.find((e) => e.key === action.payload.exerciseKey);
@@ -44,10 +47,17 @@ const draftSlice = createSlice({
     },
     setChanged(
       state,
-      action: PayloadAction<{ exerciseKey: string; setId: string; field: 'weightKg' | 'reps'; value: string }>,
+      action: PayloadAction<{
+        exerciseKey: string;
+        setId: string;
+        field: 'weightKg' | 'reps';
+        value: string;
+      }>,
     ) {
       const { exerciseKey, setId, field, value } = action.payload;
-      const set = state.current?.exercises.find((e) => e.key === exerciseKey)?.sets.find((s) => s.id === setId);
+      const set = state.current?.exercises
+        .find((e) => e.key === exerciseKey)
+        ?.sets.find((s) => s.id === setId);
       if (set) set[field] = value;
     },
   },

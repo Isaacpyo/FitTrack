@@ -1,15 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import { backoffMs, classifyFailure, enqueueItem, makeOutboxItem, pendingKeys, type OutboxItem } from '../src/store/outbox';
+import {
+  backoffMs,
+  classifyFailure,
+  enqueueItem,
+  makeOutboxItem,
+  pendingKeys,
+  type OutboxItem,
+} from '../src/store/outbox';
 import { workoutInput } from './fixtures';
 
 const upsert = (id: string, name = 'W') =>
   makeOutboxItem({ kind: 'workout.upsert', entityId: id, payload: { ...workoutInput(id), name } });
-const del = (id: string) => makeOutboxItem({ kind: 'workout.delete', entityId: id, deletedAt: '2026-10-10T10:00:00.000Z' });
+const del = (id: string) =>
+  makeOutboxItem({ kind: 'workout.delete', entityId: id, deletedAt: '2026-10-10T10:00:00.000Z' });
 const activity = (dates: [string, number][]) =>
   makeOutboxItem({
     kind: 'activity.upsert',
     entityId: 'activity',
-    payload: dates.map(([date, steps]) => ({ date, steps, activeMinutes: 10, energyKcal: 100, source: 'mock' as const })),
+    payload: dates.map(([date, steps]) => ({
+      date,
+      steps,
+      activeMinutes: 10,
+      energyKcal: 100,
+      source: 'mock' as const,
+    })),
   });
 
 describe('enqueueItem', () => {
@@ -35,13 +49,28 @@ describe('enqueueItem', () => {
   });
 
   it('merges activity batches by day, newest values winning', () => {
-    const q = enqueueItem([activity([['2026-10-01', 100], ['2026-10-02', 200]])], activity([['2026-10-02', 250]]), null);
+    const q = enqueueItem(
+      [
+        activity([
+          ['2026-10-01', 100],
+          ['2026-10-02', 200],
+        ]),
+      ],
+      activity([['2026-10-02', 250]]),
+      null,
+    );
     expect(q).toHaveLength(1);
-    expect(q[0]!.kind === 'activity.upsert' && q[0]!.payload.map((d) => d.steps)).toEqual([100, 250]);
+    expect(q[0]!.kind === 'activity.upsert' && q[0]!.payload.map((d) => d.steps)).toEqual([
+      100, 250,
+    ]);
   });
 
   it('does not merge different kinds of entity', () => {
-    const r = makeOutboxItem({ kind: 'routine.delete', entityId: 'a', deletedAt: '2026-10-10T10:00:00Z' });
+    const r = makeOutboxItem({
+      kind: 'routine.delete',
+      entityId: 'a',
+      deletedAt: '2026-10-10T10:00:00Z',
+    });
     expect(enqueueItem([upsert('a')], r, null)).toHaveLength(2);
   });
 });

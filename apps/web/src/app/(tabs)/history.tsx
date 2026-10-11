@@ -14,11 +14,24 @@ import { View } from 'react-native';
 import { Screen } from '../../components/Screen';
 import { SyncStatusChip } from '../../components/SyncStatus';
 import { WorkoutCard } from '../../components/WorkoutCard';
-import { Banner, Body, Button, Caption, EmptyState, IconButton, Row, Title } from '../../components/ui';
+import {
+  Banner,
+  Body,
+  Button,
+  Caption,
+  EmptyState,
+  IconButton,
+  Row,
+  Title,
+} from '../../components/ui';
 import { formatKg, formatVolume } from '../../lib/format';
 import { newWorkoutHref } from '../../lib/routes';
 import { useAppSelector, useToday } from '../../store/hooks';
-import { selectPendingKeys, selectRecordEventsByWorkout, selectWorkouts } from '../../store/selectors';
+import {
+  selectPendingKeys,
+  selectRecordEventsByWorkout,
+  selectWorkouts,
+} from '../../store/selectors';
 import { colors, space } from '../../theme';
 
 const PAGE = 30;
@@ -77,7 +90,8 @@ export default function History() {
           </Body>
           {savedRecords.map((r) => (
             <Body key={`${r.exerciseId}-${r.kind}`} style={{ fontSize: 14, color: colors.text }}>
-              🏆 {exerciseName(r.exerciseId)}: {RECORD_LABELS[r.kind]} {r.kind === 'reps' ? `${r.value} reps` : formatKg(r.value)} (was{' '}
+              🏆 {exerciseName(r.exerciseId)}: {RECORD_LABELS[r.kind]}{' '}
+              {r.kind === 'reps' ? `${r.value} reps` : formatKg(r.value)} (was{' '}
               {r.kind === 'reps' ? r.previous : formatKg(r.previous)})
             </Body>
           ))}
@@ -89,7 +103,13 @@ export default function History() {
           icon="time-outline"
           title="No workouts yet"
           body="Workouts you log appear here, grouped by week, with your PRs highlighted."
-          action={<Button label="Log a workout" icon="add" onPress={() => router.push(newWorkoutHref())} />}
+          action={
+            <Button
+              label="Log a workout"
+              icon="add"
+              onPress={() => router.push(newWorkoutHref())}
+            />
+          }
         />
       ) : (
         weeks.map(([weekStart, list]) => (
@@ -97,7 +117,8 @@ export default function History() {
             <Row style={{ justifyContent: 'space-between' }}>
               <Caption>{weekTitle(weekStart, today)}</Caption>
               <Caption>
-                {list.length} workout{list.length === 1 ? '' : 's'} · {formatVolume(list.reduce((n, w) => n + workoutVolume(w), 0))}
+                {list.length} workout{list.length === 1 ? '' : 's'} ·{' '}
+                {formatVolume(list.reduce((n, w) => n + workoutVolume(w), 0))}
               </Caption>
             </Row>
             {list.map((w) => (
@@ -113,7 +134,11 @@ export default function History() {
         ))
       )}
       {workouts.length > limit ? (
-        <Button variant="secondary" label={`Show older workouts (${workouts.length - limit} more)`} onPress={() => setLimit((l) => l + PAGE)} />
+        <Button
+          variant="secondary"
+          label={`Show older workouts (${workouts.length - limit} more)`}
+          onPress={() => setLimit((l) => l + PAGE)}
+        />
       ) : null}
     </Screen>
   );

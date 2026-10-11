@@ -27,9 +27,15 @@ const sessionSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(signedIn, (_state, action) => ({ token: action.payload.token, user: action.payload.user, expired: false }))
+      .addCase(signedIn, (_state, action) => ({
+        token: action.payload.token,
+        user: action.payload.user,
+        expired: false,
+      }))
       .addCase(signedOut, (state, action) =>
-        action.payload.reason === 'expired' ? { token: null, user: state.user, expired: true } : initialState,
+        action.payload.reason === 'expired'
+          ? { token: null, user: state.user, expired: true }
+          : initialState,
       );
   },
 });

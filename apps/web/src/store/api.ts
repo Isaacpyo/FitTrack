@@ -55,7 +55,9 @@ export const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryE
   }, SLOW_REQUEST_MS);
 
   try {
-    const hadToken = Boolean((api.getState() as { session: { token: string | null } }).session.token);
+    const hadToken = Boolean(
+      (api.getState() as { session: { token: string | null } }).session.token,
+    );
     const result = await rawBaseQuery(args, api, extraOptions);
     const url = typeof args === 'string' ? args : args.url;
     if (result.error?.status === 401 && hadToken && !url.startsWith('/auth/')) {
@@ -109,13 +111,21 @@ export const api = createApi({
       query: (w) => ({ url: `/workouts/${w.id}`, method: 'PUT', body: w }),
     }),
     deleteWorkout: build.mutation<void, { id: string; deletedAt: string }>({
-      query: ({ id, deletedAt }) => ({ url: `/workouts/${id}`, method: 'DELETE', params: { deletedAt } }),
+      query: ({ id, deletedAt }) => ({
+        url: `/workouts/${id}`,
+        method: 'DELETE',
+        params: { deletedAt },
+      }),
     }),
     upsertRoutine: build.mutation<UpsertResult<Routine>, RoutineInput>({
       query: (r) => ({ url: `/routines/${r.id}`, method: 'PUT', body: r }),
     }),
     deleteRoutine: build.mutation<void, { id: string; deletedAt: string }>({
-      query: ({ id, deletedAt }) => ({ url: `/routines/${id}`, method: 'DELETE', params: { deletedAt } }),
+      query: ({ id, deletedAt }) => ({
+        url: `/routines/${id}`,
+        method: 'DELETE',
+        params: { deletedAt },
+      }),
     }),
     putActivity: build.mutation<{ updated: number }, DailyActivity[]>({
       query: (days) => ({ url: '/activity', method: 'PUT', body: { days } }),
@@ -135,12 +145,14 @@ export const {
 export function describeApiError(error: unknown): string {
   if (!error || typeof error !== 'object') return 'Something went wrong. Please try again.';
   const e = error as Partial<FetchBaseQueryError> & { message?: string };
-  if (e.status === 'FETCH_ERROR') return "Can't reach the server. Check your connection and try again.";
+  if (e.status === 'FETCH_ERROR')
+    return "Can't reach the server. Check your connection and try again.";
   if (e.status === 'TIMEOUT_ERROR') return 'The server took too long to respond. Please try again.';
   if ('data' in e && e.data && typeof e.data === 'object' && 'error' in e.data) {
     const message = (e.data as { error?: { message?: string } }).error?.message;
     if (message) return message;
   }
-  if (typeof e.status === 'number' && e.status >= 500) return 'The server had a problem. Please try again shortly.';
+  if (typeof e.status === 'number' && e.status >= 500)
+    return 'The server had a problem. Please try again shortly.';
   return e.message ?? 'Something went wrong. Please try again.';
 }

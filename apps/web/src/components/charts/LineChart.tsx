@@ -23,7 +23,8 @@ export function LineChart({ data, summary, valueHeader, height = 200, testID }: 
   const geometry = (width: number) => {
     const plotW = Math.max(1, width - PAD.left - PAD.right);
     const plotH = height - PAD.top - PAD.bottom;
-    const x = (i: number) => PAD.left + (data.length === 1 ? plotW / 2 : (i / (data.length - 1)) * plotW);
+    const x = (i: number) =>
+      PAD.left + (data.length === 1 ? plotW / 2 : (i / (data.length - 1)) * plotW);
     const y = (v: number) => PAD.top + plotH - ((v - lo) / (hi - lo || 1)) * plotH;
     return { plotW, plotH, x, y };
   };
@@ -52,22 +53,60 @@ export function LineChart({ data, summary, valueHeader, height = 200, testID }: 
         return (
           <Svg width={width} height={height}>
             {ticks.map((t) => (
-              <Line key={t} x1={PAD.left} x2={PAD.left + plotW} y1={y(t)} y2={y(t)} stroke={colors.chartGrid} strokeWidth={1} />
+              <Line
+                key={t}
+                x1={PAD.left}
+                x2={PAD.left + plotW}
+                y1={y(t)}
+                y2={y(t)}
+                stroke={colors.chartGrid}
+                strokeWidth={1}
+              />
             ))}
             {ticks.map((t) => (
-              <SvgText key={`l${t}`} x={PAD.left - 8} y={y(t) + 4} fontSize={11} fontFamily={chartFont} fill={colors.textMuted} textAnchor="end">
+              <SvgText
+                key={`l${t}`}
+                x={PAD.left - 8}
+                y={y(t) + 4}
+                fontSize={11}
+                fontFamily={chartFont}
+                fill={colors.textMuted}
+                textAnchor="end"
+              >
                 {compactNumber(t)}
               </SvgText>
             ))}
             {labelIndices(data.length, plotW, 52).map((i) => (
-              <SvgText key={`x${i}`} x={x(i)} y={height - 6} fontSize={11} fontFamily={chartFont} fill={colors.textMuted} textAnchor={i === last && data.length > 1 ? 'end' : 'middle'}>
+              <SvgText
+                key={`x${i}`}
+                x={x(i)}
+                y={height - 6}
+                fontSize={11}
+                fontFamily={chartFont}
+                fill={colors.textMuted}
+                textAnchor={i === last && data.length > 1 ? 'end' : 'middle'}
+              >
                 {data[i]!.label}
               </SvgText>
             ))}
             {data.length > 1 ? <Path d={area} fill={colors.chartSeries} fillOpacity={0.1} /> : null}
-            <Path d={line} stroke={colors.chartSeries} strokeWidth={2} fill="none" strokeLinejoin="round" strokeLinecap="round" />
+            <Path
+              d={line}
+              stroke={colors.chartSeries}
+              strokeWidth={2}
+              fill="none"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
             {selected !== null ? (
-              <Line x1={x(selected)} x2={x(selected)} y1={PAD.top} y2={baseline} stroke={colors.borderStrong} strokeWidth={1} />
+              <Line
+                x1={x(selected)}
+                x2={x(selected)}
+                y1={PAD.top}
+                y2={baseline}
+                stroke={colors.borderStrong}
+                strokeWidth={1}
+              />
             ) : null}
             <Circle
               cx={x(focus)}

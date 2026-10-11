@@ -8,7 +8,10 @@ async function openTab(page: Page, name: string) {
   await page.getByRole('tab', { name }).click();
 }
 
-async function logWorkout(page: Page, opts: { name: string; exercise: string; weight: string; reps: string }) {
+async function logWorkout(
+  page: Page,
+  opts: { name: string; exercise: string; weight: string; reps: string },
+) {
   await openTab(page, 'Today');
   await page.getByRole('button', { name: 'Start empty workout' }).click();
   await expect(page.getByTestId('workout-editor')).toBeVisible();
@@ -21,7 +24,10 @@ async function logWorkout(page: Page, opts: { name: string; exercise: string; we
   await page.getByTestId('save-workout').click();
 }
 
-test('demo: log a PR, keep logging offline, sync on reconnect, see progress', async ({ page, context }) => {
+test('demo: log a PR, keep logging offline, sync on reconnect, see progress', async ({
+  page,
+  context,
+}) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Try the demo' }).click();
 
@@ -33,7 +39,12 @@ test('demo: log a PR, keep logging offline, sync on reconnect, see progress', as
   await expect(visible(page, 'sync-status')).toContainText('Synced');
 
   // Online: a heavy bench set is a new personal record and syncs straight away.
-  await logWorkout(page, { name: 'E2E heavy bench', exercise: 'Bench Press', weight: '100', reps: '3' });
+  await logWorkout(page, {
+    name: 'E2E heavy bench',
+    exercise: 'Bench Press',
+    weight: '100',
+    reps: '3',
+  });
   const saved = visible(page, 'saved-banner');
   await expect(saved).toContainText('Workout saved');
   await expect(saved).toContainText('Bench Press: Heaviest weight 100 kg');
@@ -42,7 +53,12 @@ test('demo: log a PR, keep logging offline, sync on reconnect, see progress', as
   // Offline: logging still works and the change waits in the outbox.
   await context.setOffline(true);
   await expect(visible(page, 'offline-banner')).toBeVisible();
-  await logWorkout(page, { name: 'E2E offline deadlifts', exercise: 'Deadlift', weight: '150', reps: '5' });
+  await logWorkout(page, {
+    name: 'E2E offline deadlifts',
+    exercise: 'Deadlift',
+    weight: '150',
+    reps: '5',
+  });
   await expect(visible(page, 'saved-banner')).toContainText('Saved on this device');
   await expect(visible(page, 'sync-status')).toContainText('Offline · 1 pending');
 
@@ -53,9 +69,13 @@ test('demo: log a PR, keep logging offline, sync on reconnect, see progress', as
 
   // Both workouts really are on the server.
   const token = await page.evaluate(() => window.localStorage.getItem('fittrack.token'));
-  const response = await page.request.get(`${E2E_API_URL}/sync/changes`, { headers: { authorization: `Bearer ${token}` } });
+  const response = await page.request.get(`${E2E_API_URL}/sync/changes`, {
+    headers: { authorization: `Bearer ${token}` },
+  });
   expect(response.ok()).toBe(true);
-  const names = ((await response.json()) as { workouts: { name: string }[] }).workouts.map((w) => w.name);
+  const names = ((await response.json()) as { workouts: { name: string }[] }).workouts.map(
+    (w) => w.name,
+  );
   expect(names).toEqual(expect.arrayContaining(['E2E heavy bench', 'E2E offline deadlifts']));
 
   // Progress charts render from local data, including the new PR.

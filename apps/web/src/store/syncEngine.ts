@@ -1,16 +1,39 @@
 import { isAnyOf } from '@reduxjs/toolkit';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import type { UpsertResult } from '@fittrack/shared';
-import { appForegrounded, changesPulled, flushRequested, hydrated, pullRequested, signedIn, signedOut } from './actions';
+import {
+  appForegrounded,
+  changesPulled,
+  flushRequested,
+  hydrated,
+  pullRequested,
+  signedIn,
+  signedOut,
+} from './actions';
 import { api, describeApiError } from './api';
 import { backoffMs, classifyFailure, entityKey, pendingKeys, type OutboxItem } from './outbox';
-import { enqueued, failedRetried, sendAborted, sendDeferred, sendRejected, sendStarted, sendSucceeded } from './outboxSlice';
+import {
+  enqueued,
+  failedRetried,
+  sendAborted,
+  sendDeferred,
+  sendRejected,
+  sendStarted,
+  sendSucceeded,
+} from './outboxSlice';
 import { routineServerCopyAdopted } from './routinesSlice';
-import { connectivityChanged, flushFinished, flushStarted, pullFailed, pullStarted } from './syncSlice';
+import {
+  connectivityChanged,
+  flushFinished,
+  flushStarted,
+  pullFailed,
+  pullStarted,
+} from './syncSlice';
 import type { AppDispatch, AppStartListening } from './types';
 import { serverCopyAdopted } from './workoutsSlice';
 
-type SendResult = { ok: true; data: unknown } | { ok: false; error: FetchBaseQueryError | { message?: string } };
+type SendResult =
+  { ok: true; data: unknown } | { ok: false; error: FetchBaseQueryError | { message?: string } };
 
 /** Replay one outbox item against the API. */
 async function send(item: OutboxItem, dispatch: AppDispatch): Promise<SendResult> {
@@ -19,11 +42,15 @@ async function send(item: OutboxItem, dispatch: AppDispatch): Promise<SendResult
       case 'workout.upsert':
         return dispatch(api.endpoints.upsertWorkout.initiate(item.payload));
       case 'workout.delete':
-        return dispatch(api.endpoints.deleteWorkout.initiate({ id: item.entityId, deletedAt: item.deletedAt }));
+        return dispatch(
+          api.endpoints.deleteWorkout.initiate({ id: item.entityId, deletedAt: item.deletedAt }),
+        );
       case 'routine.upsert':
         return dispatch(api.endpoints.upsertRoutine.initiate(item.payload));
       case 'routine.delete':
-        return dispatch(api.endpoints.deleteRoutine.initiate({ id: item.entityId, deletedAt: item.deletedAt }));
+        return dispatch(
+          api.endpoints.deleteRoutine.initiate({ id: item.entityId, deletedAt: item.deletedAt }),
+        );
       case 'activity.upsert':
         return dispatch(api.endpoints.putActivity.initiate(item.payload));
     }
@@ -54,12 +81,25 @@ export function registerSyncEngine(startListening: AppStartListening): void {
 
   startListening({
     predicate: (action) =>
-      isAnyOf(enqueued, failedRetried, flushRequested, hydrated, signedIn, appForegrounded)(action) ||
+      isAnyOf(
+        enqueued,
+        failedRetried,
+        flushRequested,
+        hydrated,
+        signedIn,
+        appForegrounded,
+      )(action) ||
       (isOnline(action) && action.payload),
     effect: async (_action, { getState, dispatch }) => {
       const start = getState();
       // Only one flush loop at a time; a running loop picks up newly queued items itself.
-      if (start.sync.flushing || !start.sync.online || !start.session.token || start.outbox.items.length === 0) return;
+      if (
+        start.sync.flushing ||
+        !start.sync.online ||
+        !start.session.token ||
+        start.outbox.items.length === 0
+      )
+        return;
       clearRetry();
       dispatch(flushStarted());
 
@@ -80,7 +120,11 @@ export function registerSyncEngine(startListening: AppStartListening): void {
             const upsert = result.data as UpsertResult<never> | undefined;
             // The server kept a newer copy (last-write-wins). Adopt it unless we have
             // an even newer local edit still queued.
-            if (upsert && upsert.applied === false && !pendingKeys(getState().outbox.items).has(entityKey(item))) {
+            if (
+              upsert &&
+              upsert.applied === false &&
+              !pendingKeys(getState().outbox.items).has(entityKey(item))
+            ) {
               if (item.kind === 'workout.upsert') dispatch(serverCopyAdopted(upsert.item));
               if (item.kind === 'routine.upsert') dispatch(routineServerCopyAdopted(upsert.item));
             }
@@ -117,13 +161,17 @@ export function registerSyncEngine(startListening: AppStartListening): void {
 
   startListening({
     predicate: (action) =>
-      isAnyOf(pullRequested, hydrated, signedIn, appForegrounded)(action) || (isOnline(action) && action.payload),
+      isAnyOf(pullRequested, hydrated, signedIn, appForegrounded)(action) ||
+      (isOnline(action) && action.payload),
     effect: async (_action, { getState, dispatch }) => {
       const state = getState();
       if (state.sync.pulling || !state.sync.online || !state.session.token) return;
       dispatch(pullStarted());
       const request = dispatch(
-        api.endpoints.syncChanges.initiate({ since: state.sync.lastPulledAt }, { subscribe: false, forceRefetch: true }),
+        api.endpoints.syncChanges.initiate(
+          { since: state.sync.lastPulledAt },
+          { subscribe: false, forceRefetch: true },
+        ),
       );
       try {
         const response = await request.unwrap();

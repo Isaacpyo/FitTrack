@@ -26,9 +26,27 @@ export async function loadNativeProvider(): Promise<HealthProvider | null> {
         const anchor = localMidnight(from);
         const filter = { date: { startDate: anchor, endDate: localMidnight(addDays(to, 1)) } };
         const [steps, energy, exercise] = await Promise.all([
-          HK.queryStatisticsCollectionForQuantity('HKQuantityTypeIdentifierStepCount', ['cumulativeSum'], anchor, { day: 1 }, { filter, unit: 'count' }),
-          HK.queryStatisticsCollectionForQuantity('HKQuantityTypeIdentifierActiveEnergyBurned', ['cumulativeSum'], anchor, { day: 1 }, { filter, unit: 'kcal' }),
-          HK.queryStatisticsCollectionForQuantity('HKQuantityTypeIdentifierAppleExerciseTime', ['cumulativeSum'], anchor, { day: 1 }, { filter, unit: 'min' }),
+          HK.queryStatisticsCollectionForQuantity(
+            'HKQuantityTypeIdentifierStepCount',
+            ['cumulativeSum'],
+            anchor,
+            { day: 1 },
+            { filter, unit: 'count' },
+          ),
+          HK.queryStatisticsCollectionForQuantity(
+            'HKQuantityTypeIdentifierActiveEnergyBurned',
+            ['cumulativeSum'],
+            anchor,
+            { day: 1 },
+            { filter, unit: 'kcal' },
+          ),
+          HK.queryStatisticsCollectionForQuantity(
+            'HKQuantityTypeIdentifierAppleExerciseTime',
+            ['cumulativeSum'],
+            anchor,
+            { day: 1 },
+            { filter, unit: 'min' },
+          ),
         ]);
 
         const days = new Map<string, DailyActivity>();

@@ -19,10 +19,17 @@ interface ScreenProps {
 export function Screen({ children, width = 'page', scroll = true, footer, testID }: ScreenProps) {
   const column = [styles.column, { maxWidth: maxWidth[width] }];
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={{ flex: 1, backgroundColor: colors.bg }} testID={testID}>
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={{ flex: 1, backgroundColor: colors.bg }}
+      testID={testID}
+    >
       <GlobalBanners />
       {scroll ? (
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={column}>{children}</View>
         </ScrollView>
       ) : (

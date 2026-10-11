@@ -33,10 +33,20 @@ function RootStack() {
 
 function Boot({ error }: { error: string | null }) {
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: colors.bg,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 16,
+      }}
+    >
       <Text style={{ color: colors.text, fontSize: 28, fontWeight: '800' }}>FitTrack</Text>
       {error ? (
-        <Text style={{ color: colors.danger, textAlign: 'center', paddingHorizontal: 24 }}>{error}</Text>
+        <Text style={{ color: colors.danger, textAlign: 'center', paddingHorizontal: 24 }}>
+          {error}
+        </Text>
       ) : (
         <ActivityIndicator color={colors.accent} accessibilityLabel="Loading FitTrack" />
       )}
@@ -49,8 +59,10 @@ export default function RootLayout() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    createAppStore({ storage: appStorage, tokenStorage, now: () => new Date() }).then(setStore, (err: unknown) =>
-      setError(`Could not start FitTrack: ${err instanceof Error ? err.message : String(err)}`),
+    createAppStore({ storage: appStorage, tokenStorage, now: () => new Date() }).then(
+      setStore,
+      (err: unknown) =>
+        setError(`Could not start FitTrack: ${err instanceof Error ? err.message : String(err)}`),
     );
   }, []);
 

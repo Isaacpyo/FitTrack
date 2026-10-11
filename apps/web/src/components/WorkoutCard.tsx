@@ -1,5 +1,12 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { exerciseName, toDateKey, workoutSetCount, workoutVolume, type RecordEvent, type Workout } from '@fittrack/shared';
+import {
+  exerciseName,
+  toDateKey,
+  workoutSetCount,
+  workoutVolume,
+  type RecordEvent,
+  type Workout,
+} from '@fittrack/shared';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -32,7 +39,12 @@ export function WorkoutCard({
       onBlur={() => setFocused(false)}
       accessibilityRole="button"
       accessibilityLabel={`${workout.name}, ${day}. ${shown}.${records.length ? ` ${records.length} personal records.` : ''}${pending ? ' Not synced yet.' : ''}`}
-      style={({ pressed }) => [ui.card, styles.card, focused && ui.focusRing, pressed && { opacity: 0.85 }]}
+      style={({ pressed }) => [
+        ui.card,
+        styles.card,
+        focused && ui.focusRing,
+        pressed && { opacity: 0.85 },
+      ]}
       testID={`workout-card-${workout.id}`}
     >
       <Row style={{ justifyContent: 'space-between' }}>
@@ -42,15 +54,21 @@ export function WorkoutCard({
         <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
       </Row>
       <Body muted style={{ fontSize: 14 }}>
-        {[day, duration, `${workoutSetCount(workout)} sets`, formatVolume(workoutVolume(workout))].filter(Boolean).join(' · ')}
+        {[day, duration, `${workoutSetCount(workout)} sets`, formatVolume(workoutVolume(workout))]
+          .filter(Boolean)
+          .join(' · ')}
       </Body>
       <Body style={{ fontSize: 14 }} numberOfLines={1}>
         {shown}
       </Body>
       {records.length || pending ? (
         <View style={styles.badges}>
-          {records.length ? <Badge icon="trophy" label={`${records.length} PR${records.length > 1 ? 's' : ''}`} /> : null}
-          {pending ? <Badge tone="warning" icon="cloud-upload-outline" label="Not synced yet" /> : null}
+          {records.length ? (
+            <Badge icon="trophy" label={`${records.length} PR${records.length > 1 ? 's' : ''}`} />
+          ) : null}
+          {pending ? (
+            <Badge tone="warning" icon="cloud-upload-outline" label="Not synced yet" />
+          ) : null}
         </View>
       ) : null}
     </Pressable>

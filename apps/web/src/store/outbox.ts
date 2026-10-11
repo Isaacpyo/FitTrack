@@ -23,7 +23,12 @@ export const MAX_ACTIVITY_DAYS_PER_ITEM = 92;
 let seq = 0;
 export function makeOutboxItem(op: OutboxOp, now: Date = new Date()): OutboxItem {
   seq += 1;
-  return { ...op, id: `${op.kind}:${op.entityId}:${now.getTime()}:${seq}`, createdAt: now.toISOString(), attempts: 0 };
+  return {
+    ...op,
+    id: `${op.kind}:${op.entityId}:${now.getTime()}:${seq}`,
+    createdAt: now.toISOString(),
+    attempts: 0,
+  };
 }
 
 /** "workout:<id>", "routine:<id>" or "activity:activity" — the thing an operation changes. */
@@ -34,7 +39,9 @@ export function entityKey(op: Pick<OutboxOp, 'kind' | 'entityId'>): string {
 function mergeActivity(older: DailyActivity[], newer: DailyActivity[]): DailyActivity[] {
   const byDate = new Map(older.map((d) => [d.date, d]));
   for (const d of newer) byDate.set(d.date, d);
-  return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date)).slice(-MAX_ACTIVITY_DAYS_PER_ITEM);
+  return [...byDate.values()]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(-MAX_ACTIVITY_DAYS_PER_ITEM);
 }
 
 /**
@@ -42,7 +49,11 @@ function mergeActivity(older: DailyActivity[], newer: DailyActivity[]): DailyAct
  * two edits become one upload, and an edit followed by a delete becomes just the delete.
  * The in-flight item is never touched — its response would otherwise acknowledge the wrong write.
  */
-export function enqueueItem(items: OutboxItem[], item: OutboxItem, inFlightId: string | null): OutboxItem[] {
+export function enqueueItem(
+  items: OutboxItem[],
+  item: OutboxItem,
+  inFlightId: string | null,
+): OutboxItem[] {
   const key = entityKey(item);
   const index = items.findIndex((i) => i.id !== inFlightId && entityKey(i) === key);
   if (index === -1) return [...items, item];

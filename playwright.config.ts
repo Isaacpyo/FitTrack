@@ -22,7 +22,9 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     // Lets sandboxes with a pre-installed Chromium skip `playwright install`.
-    launchOptions: process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {},
+    launchOptions: process.env.PLAYWRIGHT_CHROMIUM_PATH
+      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH }
+      : {},
   },
   webServer: [
     {
@@ -33,7 +35,9 @@ export default defineConfig({
       env: {
         NODE_ENV: 'test',
         PORT: String(API_PORT),
-        DATABASE_URL: process.env.E2E_DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5432/fittrack_e2e',
+        DATABASE_URL:
+          process.env.E2E_DATABASE_URL ??
+          'postgres://postgres:postgres@localhost:5432/fittrack_e2e',
         CORS_ORIGINS: `http://localhost:${WEB_PORT}`,
         LOG_LEVEL: 'warn',
         AUTH_RATE_LIMIT_PER_MINUTE: '1000',

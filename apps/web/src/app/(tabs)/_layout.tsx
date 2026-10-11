@@ -29,10 +29,22 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen name="today" options={{ title: 'Today', tabBarIcon: icon('flame-outline') }} />
-      <Tabs.Screen name="history" options={{ title: 'History', tabBarIcon: icon('time-outline') }} />
-      <Tabs.Screen name="routines" options={{ title: 'Routines', tabBarIcon: icon('list-outline') }} />
-      <Tabs.Screen name="progress" options={{ title: 'Progress', tabBarIcon: icon('stats-chart-outline') }} />
-      <Tabs.Screen name="settings" options={{ title: 'Settings', tabBarIcon: icon('settings-outline') }} />
+      <Tabs.Screen
+        name="history"
+        options={{ title: 'History', tabBarIcon: icon('time-outline') }}
+      />
+      <Tabs.Screen
+        name="routines"
+        options={{ title: 'Routines', tabBarIcon: icon('list-outline') }}
+      />
+      <Tabs.Screen
+        name="progress"
+        options={{ title: 'Progress', tabBarIcon: icon('stats-chart-outline') }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{ title: 'Settings', tabBarIcon: icon('settings-outline') }}
+      />
     </Tabs>
   );
 }

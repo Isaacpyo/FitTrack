@@ -19,8 +19,18 @@ export type IconName = ComponentProps<typeof Ionicons>['name'];
 
 // ---------------------------------------------------------------- layout
 
-export function Row({ children, style, gap = space.sm }: { children: ReactNode; style?: StyleProp<ViewStyle>; gap?: number }) {
-  return <View style={[{ flexDirection: 'row', alignItems: 'center', gap }, style]}>{children}</View>;
+export function Row({
+  children,
+  style,
+  gap = space.sm,
+}: {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+  gap?: number;
+}) {
+  return (
+    <View style={[{ flexDirection: 'row', alignItems: 'center', gap }, style]}>{children}</View>
+  );
 }
 
 /** Wrapping grid whose cells are at least `min` wide — one column on phones, more on desktop. */
@@ -28,7 +38,10 @@ export function Grid({ children, min = 150 }: { children: ReactNode; min?: numbe
   return (
     <View style={styles.grid}>
       {Children.toArray(children).map((child, i) => (
-        <View key={isValidElement(child) && child.key !== null ? child.key : i} style={{ flexGrow: 1, flexBasis: min, minWidth: min }}>
+        <View
+          key={isValidElement(child) && child.key !== null ? child.key : i}
+          style={{ flexGrow: 1, flexBasis: min, minWidth: min }}
+        >
           {child}
         </View>
       ))}
@@ -36,7 +49,15 @@ export function Grid({ children, min = 150 }: { children: ReactNode; min?: numbe
   );
 }
 
-export function Card({ children, style, testID }: { children: ReactNode; style?: StyleProp<ViewStyle>; testID?: string }) {
+export function Card({
+  children,
+  style,
+  testID,
+}: {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+  testID?: string;
+}) {
   return (
     <View style={[styles.card, style]} testID={testID}>
       {children}
@@ -54,7 +75,13 @@ export function Title({ children }: { children: ReactNode }) {
   );
 }
 
-export function Heading({ children, style }: { children: ReactNode; style?: StyleProp<TextStyle> }) {
+export function Heading({
+  children,
+  style,
+}: {
+  children: ReactNode;
+  style?: StyleProp<TextStyle>;
+}) {
   return (
     <Text style={[styles.heading, style]} accessibilityRole="header">
       {children}
@@ -67,7 +94,10 @@ export function Body({
   style,
   muted,
   ...rest
-}: { children: ReactNode; style?: StyleProp<TextStyle>; muted?: boolean } & Omit<TextProps, 'style' | 'children'>) {
+}: { children: ReactNode; style?: StyleProp<TextStyle>; muted?: boolean } & Omit<
+  TextProps,
+  'style' | 'children'
+>) {
   return (
     <Text style={[styles.body, muted && styles.muted, style]} {...rest}>
       {children}
@@ -75,7 +105,13 @@ export function Body({
   );
 }
 
-export function Caption({ children, style }: { children: ReactNode; style?: StyleProp<TextStyle> }) {
+export function Caption({
+  children,
+  style,
+}: {
+  children: ReactNode;
+  style?: StyleProp<TextStyle>;
+}) {
   return <Text style={[styles.caption, style]}>{children}</Text>;
 }
 
@@ -135,7 +171,11 @@ export function Button({
       style={({ pressed }) => [
         styles.button,
         compact && styles.buttonCompact,
-        { backgroundColor: c.bg, borderColor: c.border, opacity: inactive ? 0.55 : pressed ? 0.8 : 1 },
+        {
+          backgroundColor: c.bg,
+          borderColor: c.border,
+          opacity: inactive ? 0.55 : pressed ? 0.8 : 1,
+        },
         focused && styles.focusRing,
         style,
       ]}
@@ -145,7 +185,9 @@ export function Button({
       ) : icon ? (
         <Ionicons name={icon} size={compact ? 16 : 18} color={c.fg} />
       ) : null}
-      <Text style={[styles.buttonLabel, compact && styles.buttonLabelCompact, { color: c.fg }]}>{label}</Text>
+      <Text style={[styles.buttonLabel, compact && styles.buttonLabelCompact, { color: c.fg }]}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -178,7 +220,11 @@ export function IconButton({
       accessibilityState={{ disabled: Boolean(disabled) }}
       hitSlop={6}
       testID={testID}
-      style={({ pressed }) => [styles.iconButton, focused && styles.focusRing, { opacity: disabled ? 0.4 : pressed ? 0.6 : 1 }]}
+      style={({ pressed }) => [
+        styles.iconButton,
+        focused && styles.focusRing,
+        { opacity: disabled ? 0.4 : pressed ? 0.6 : 1 },
+      ]}
     >
       <Ionicons name={icon} size={20} color={color} />
     </Pressable>
@@ -195,7 +241,17 @@ interface TextFieldProps extends Omit<TextInputProps, 'style'> {
   inputStyle?: StyleProp<TextStyle>;
 }
 
-export function TextField({ label, error, hint, hideLabel, style, inputStyle, onFocus, onBlur, ...input }: TextFieldProps) {
+export function TextField({
+  label,
+  error,
+  hint,
+  hideLabel,
+  style,
+  inputStyle,
+  onFocus,
+  onBlur,
+  ...input
+}: TextFieldProps) {
   const [focused, setFocused] = useState(false);
   return (
     <View style={[styles.field, style]}>
@@ -231,7 +287,17 @@ export function TextField({ label, error, hint, hideLabel, style, inputStyle, on
   );
 }
 
-export function Chip({ label, selected, onPress, testID }: { label: string; selected?: boolean; onPress: () => void; testID?: string }) {
+export function Chip({
+  label,
+  selected,
+  onPress,
+  testID,
+}: {
+  label: string;
+  selected?: boolean;
+  onPress: () => void;
+  testID?: string;
+}) {
   const [focused, setFocused] = useState(false);
   return (
     <Pressable
@@ -249,7 +315,15 @@ export function Chip({ label, selected, onPress, testID }: { label: string; sele
   );
 }
 
-export function Badge({ label, tone = 'accent', icon }: { label: string; tone?: 'accent' | 'success' | 'warning' | 'info' | 'danger'; icon?: IconName }) {
+export function Badge({
+  label,
+  tone = 'accent',
+  icon,
+}: {
+  label: string;
+  tone?: 'accent' | 'success' | 'warning' | 'info' | 'danger';
+  icon?: IconName;
+}) {
   const map = {
     accent: [colors.accentSoft, colors.accent],
     success: [colors.successSoft, colors.success],
@@ -266,7 +340,17 @@ export function Badge({ label, tone = 'accent', icon }: { label: string; tone?: 
   );
 }
 
-export function ProgressBar({ value, max, label, color = colors.accent }: { value: number; max: number; label: string; color?: string }) {
+export function ProgressBar({
+  value,
+  max,
+  label,
+  color = colors.accent,
+}: {
+  value: number;
+  max: number;
+  label: string;
+  color?: string;
+}) {
   const pct = max > 0 ? Math.min(1, Math.max(0, value / max)) : 0;
   return (
     <View
@@ -280,24 +364,53 @@ export function ProgressBar({ value, max, label, color = colors.accent }: { valu
   );
 }
 
-export function Stat({ label, value, sub, icon, testID }: { label: string; value: string; sub?: string; icon?: IconName; testID?: string }) {
+export function Stat({
+  label,
+  value,
+  sub,
+  icon,
+  testID,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  icon?: IconName;
+  testID?: string;
+}) {
   return (
     <Card style={styles.stat} testID={testID}>
       <Row gap={6}>
         {icon ? <Ionicons name={icon} size={16} color={colors.accent} /> : null}
         <Caption>{label}</Caption>
       </Row>
-      <Text style={styles.statValue} accessibilityLabel={`${label}: ${value}${sub ? `, ${sub}` : ''}`}>
+      <Text
+        style={styles.statValue}
+        accessibilityLabel={`${label}: ${value}${sub ? `, ${sub}` : ''}`}
+      >
         {value}
       </Text>
-      {sub ? <Body muted style={styles.statSub}>{sub}</Body> : null}
+      {sub ? (
+        <Body muted style={styles.statSub}>
+          {sub}
+        </Body>
+      ) : null}
     </Card>
   );
 }
 
 // ---------------------------------------------------------------- states
 
-export function EmptyState({ icon, title, body, action }: { icon: IconName; title: string; body: string; action?: ReactNode }) {
+export function EmptyState({
+  icon,
+  title,
+  body,
+  action,
+}: {
+  icon: IconName;
+  title: string;
+  body: string;
+  action?: ReactNode;
+}) {
   return (
     <Card style={styles.state}>
       <Ionicons name={icon} size={32} color={colors.accent} />
@@ -315,7 +428,9 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
     <Card style={[styles.state, { borderColor: colors.danger }]}>
       <Ionicons name="alert-circle" size={28} color={colors.danger} />
       <Body style={{ textAlign: 'center' }}>{message}</Body>
-      {onRetry ? <Button label="Try again" variant="secondary" icon="refresh" onPress={onRetry} /> : null}
+      {onRetry ? (
+        <Button label="Try again" variant="secondary" icon="refresh" onPress={onRetry} />
+      ) : null}
     </Card>
   );
 }
@@ -360,7 +475,11 @@ export function Banner({
       accessibilityLiveRegion="polite"
       testID={testID}
     >
-      {busy ? <ActivityIndicator size="small" color={fg} /> : <Ionicons name={icon} size={18} color={fg} />}
+      {busy ? (
+        <ActivityIndicator size="small" color={fg} />
+      ) : (
+        <Ionicons name={icon} size={18} color={fg} />
+      )}
       <View style={{ flex: 1, gap: 2 }}>{children}</View>
       {action}
     </View>
@@ -369,12 +488,31 @@ export function Banner({
 
 export const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  scrollContent: { paddingHorizontal: space.lg, paddingTop: space.lg, paddingBottom: space.xxl, alignItems: 'center' },
+  scrollContent: {
+    paddingHorizontal: space.lg,
+    paddingTop: space.lg,
+    paddingBottom: space.xxl,
+    alignItems: 'center',
+  },
   column: { width: '100%', gap: space.lg },
-  footer: { borderTopWidth: 1, borderTopColor: colors.border, backgroundColor: colors.surface, paddingHorizontal: space.lg, paddingVertical: space.md, alignItems: 'center' },
+  footer: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    backgroundColor: colors.surface,
+    paddingHorizontal: space.lg,
+    paddingVertical: space.md,
+    alignItems: 'center',
+  },
   footerInner: { flexDirection: 'row', gap: space.sm, justifyContent: 'flex-end' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.md },
-  card: { backgroundColor: colors.surface, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: space.lg, gap: space.sm },
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: space.lg,
+    gap: space.sm,
+  },
   title: { ...font.title, color: colors.text },
   heading: { ...font.heading, color: colors.text },
   body: { ...font.body, color: colors.text, lineHeight: 22 },
@@ -393,8 +531,19 @@ export const styles = StyleSheet.create({
   buttonCompact: { minHeight: 40, paddingHorizontal: space.md },
   buttonLabel: { fontSize: 16, fontWeight: '700' },
   buttonLabelCompact: { fontSize: 14 },
-  focusRing: { outlineColor: colors.focus, outlineWidth: 2, outlineStyle: 'solid', outlineOffset: 2 } as ViewStyle,
-  iconButton: { width: 44, height: 44, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
+  focusRing: {
+    outlineColor: colors.focus,
+    outlineWidth: 2,
+    outlineStyle: 'solid',
+    outlineOffset: 2,
+  } as ViewStyle,
+  iconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   field: { gap: 6 },
   fieldLabel: { fontSize: 14, fontWeight: '600', color: colors.text },
   input: {
@@ -423,14 +572,34 @@ export const styles = StyleSheet.create({
   chipSelected: { backgroundColor: colors.accent, borderColor: colors.accent },
   chipLabel: { color: colors.text, fontSize: 14, fontWeight: '600' },
   chipLabelSelected: { color: colors.accentText },
-  badge: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, alignSelf: 'flex-start' },
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radius.pill,
+    alignSelf: 'flex-start',
+  },
   badgeLabel: { fontSize: 12, fontWeight: '700' },
-  progressTrack: { height: 10, borderRadius: radius.pill, backgroundColor: colors.surfaceRaised, overflow: 'hidden' },
+  progressTrack: {
+    height: 10,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceRaised,
+    overflow: 'hidden',
+  },
   progressFill: { height: '100%', borderRadius: radius.pill },
   stat: { gap: 4, padding: space.md },
   statValue: { fontSize: 26, fontWeight: '800', color: colors.text },
   statSub: { fontSize: 13 },
   state: { alignItems: 'center', gap: space.md, paddingVertical: space.xl },
   loading: { alignItems: 'center', justifyContent: 'center', gap: space.md, padding: space.xl },
-  banner: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.md, borderRadius: radius.md, borderWidth: 1 },
+  banner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.md,
+    padding: space.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+  },
 });

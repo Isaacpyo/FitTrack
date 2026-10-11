@@ -31,12 +31,21 @@ function setup(preloaded: Partial<RootState> = {}) {
     tokenStorage: memoryTokenStorage('token-1'),
     now: () => new Date('2026-10-10T17:30:00.000Z'),
   };
-  const store = makeStore(deps, { session: { token: 'token-1', user, expired: false }, ...preloaded });
+  const store = makeStore(deps, {
+    session: { token: 'token-1', user, expired: false },
+    ...preloaded,
+  });
   return { store, deps };
 }
 
-function saveWorkout(store: ReturnType<typeof setup>['store'], id = randomUUID(), name = 'Push Day') {
-  store.dispatch(draftStarted({ ...draftFromWorkout(workout(id, { name }), randomUUID), isNew: true }));
+function saveWorkout(
+  store: ReturnType<typeof setup>['store'],
+  id = randomUUID(),
+  name = 'Push Day',
+) {
+  store.dispatch(
+    draftStarted({ ...draftFromWorkout(workout(id, { name }), randomUUID), isNew: true }),
+  );
   const result = store.dispatch(saveDraft());
   expect(result.ok).toBe(true);
   return id;
@@ -67,7 +76,10 @@ describe('offline-first sync engine', () => {
     saveWorkout(store, a, 'First, edited');
     const b = saveWorkout(store);
     store.dispatch(deleteWorkout(b));
-    expect(store.getState().outbox.items.map((i) => i.kind)).toEqual(['workout.upsert', 'workout.delete']);
+    expect(store.getState().outbox.items.map((i) => i.kind)).toEqual([
+      'workout.upsert',
+      'workout.delete',
+    ]);
 
     store.dispatch(connectivityChanged(true));
     await vi.waitFor(() => expect(store.getState().outbox.items).toHaveLength(0));
@@ -125,7 +137,10 @@ describe('offline-first sync engine', () => {
     await vi.waitFor(() => expect(store.getState().session.token).toBeNull());
     expect(store.getState().session.expired).toBe(true);
     expect(selectWorkouts(store.getState()).map((w) => w.id)).toEqual([id]);
-    expect(store.getState().outbox).toMatchObject({ inFlightId: null, items: [expect.objectContaining({ entityId: id })] });
+    expect(store.getState().outbox).toMatchObject({
+      inFlightId: null,
+      items: [expect.objectContaining({ entityId: id })],
+    });
     await vi.waitFor(async () => expect(await deps.tokenStorage.get()).toBeNull());
 
     store.dispatch(signedIn({ token: 'token-2', user }));
@@ -138,7 +153,9 @@ describe('offline-first sync engine', () => {
     store.dispatch(connectivityChanged(false));
     saveWorkout(store);
     store.dispatch(signedOut({ reason: 'expired' }));
-    store.dispatch(signedIn({ token: 'other', user: { ...user, id: randomUUID(), email: 'kim@example.com' } }));
+    store.dispatch(
+      signedIn({ token: 'other', user: { ...user, id: randomUUID(), email: 'kim@example.com' } }),
+    );
     expect(selectWorkouts(store.getState())).toHaveLength(0);
     expect(store.getState().outbox.items).toHaveLength(0);
   });
@@ -146,7 +163,10 @@ describe('offline-first sync engine', () => {
   it('adopts the server copy when the server has a newer edit (last-write-wins)', async () => {
     const { store } = setup();
     const id = randomUUID();
-    server.workouts.set(id, workout(id, { name: 'Edited on phone', updatedAt: '2026-10-10T18:00:00.000Z' }));
+    server.workouts.set(
+      id,
+      workout(id, { name: 'Edited on phone', updatedAt: '2026-10-10T18:00:00.000Z' }),
+    );
     saveWorkout(store, id, 'Older laptop edit');
     await vi.waitFor(() => expect(store.getState().outbox.items).toHaveLength(0));
     expect(selectWorkouts(store.getState())[0]!.name).toBe('Edited on phone');
@@ -154,7 +174,15 @@ describe('offline-first sync engine', () => {
 
   it('uploads health activity through the same queue', async () => {
     const { store } = setup();
-    const days = [{ date: '2026-10-10', steps: 9000, activeMinutes: 40, energyKcal: 400, source: 'mock' as const }];
+    const days = [
+      {
+        date: '2026-10-10',
+        steps: 9000,
+        activeMinutes: 40,
+        energyKcal: 400,
+        source: 'mock' as const,
+      },
+    ];
     expect(store.dispatch(recordActivity(days))).toBe(1);
     expect(store.dispatch(recordActivity(days))).toBe(0); // unchanged days are not re-sent
     await vi.waitFor(() => expect(server.writes()).toEqual(['PUT /activity']));
@@ -168,13 +196,22 @@ describe('pulling changes', () => {
     const local = saveWorkout(store, randomUUID(), 'Local edit');
     const other = workout(randomUUID(), { name: 'From server' });
     const gone = workout(randomUUID());
-    store.dispatch(changesPulled({ response: { serverTime: 'now', workouts: [gone], routines: [], activity: [] }, pending: [] }));
+    store.dispatch(
+      changesPulled({
+        response: { serverTime: 'now', workouts: [gone], routines: [], activity: [] },
+        pending: [],
+      }),
+    );
 
     store.dispatch(
       changesPulled({
         response: {
           serverTime: '2026-10-10T18:00:00.000Z',
-          workouts: [workout(local, { name: 'Stale server copy' }), other, { ...gone, deletedAt: '2026-10-10T17:00:00.000Z' }],
+          workouts: [
+            workout(local, { name: 'Stale server copy' }),
+            other,
+            { ...gone, deletedAt: '2026-10-10T17:00:00.000Z' },
+          ],
           routines: [],
           activity: [],
         },
@@ -207,7 +244,10 @@ describe('persistence and sign-out', () => {
     const storage = memoryStorage();
     const tokenStorage = memoryTokenStorage('token-1');
     server.offline = true;
-    const first = makeStore({ storage, tokenStorage, now: () => new Date() }, { session: { token: 'token-1', user, expired: false } });
+    const first = makeStore(
+      { storage, tokenStorage, now: () => new Date() },
+      { session: { token: 'token-1', user, expired: false } },
+    );
     const { persistStore } = await import('../src/store/persistence');
     persistStore(first, storage);
     first.dispatch(connectivityChanged(false));
@@ -234,14 +274,26 @@ describe('persistence and sign-out', () => {
         lastPulledAt: null,
       }),
     });
-    const store = await createAppStore({ storage, tokenStorage: memoryTokenStorage(null), now: () => new Date() });
-    expect(store.getState().session).toMatchObject({ token: null, expired: true, user: { id: user.id } });
+    const store = await createAppStore({
+      storage,
+      tokenStorage: memoryTokenStorage(null),
+      now: () => new Date(),
+    });
+    expect(store.getState().session).toMatchObject({
+      token: null,
+      expired: true,
+      user: { id: user.id },
+    });
     expect(selectWorkouts(store.getState())).toHaveLength(1);
   });
 
   it('starts empty when storage is corrupt', async () => {
     const storage = memoryStorage({ [STATE_STORAGE_KEY]: '{not json' });
-    const store = await createAppStore({ storage, tokenStorage: memoryTokenStorage('t'), now: () => new Date() });
+    const store = await createAppStore({
+      storage,
+      tokenStorage: memoryTokenStorage('t'),
+      now: () => new Date(),
+    });
     expect(store.getState().session.user).toBeNull();
   });
 

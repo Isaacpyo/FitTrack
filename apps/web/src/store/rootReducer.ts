@@ -33,8 +33,14 @@ export function rootReducer(state: RootState | undefined, action: UnknownAction)
   if (state) {
     const wipe =
       (signedOut.match(action) && action.payload.reason === 'user') ||
-      (signedIn.match(action) && state.session.user !== null && state.session.user.id !== action.payload.user.id);
-    if (wipe) return appReducer({ sync: { ...state.sync, lastPulledAt: null }, [api.reducerPath]: state[api.reducerPath] }, action);
+      (signedIn.match(action) &&
+        state.session.user !== null &&
+        state.session.user.id !== action.payload.user.id);
+    if (wipe)
+      return appReducer(
+        { sync: { ...state.sync, lastPulledAt: null }, [api.reducerPath]: state[api.reducerPath] },
+        action,
+      );
   }
   return appReducer(state, action);
 }

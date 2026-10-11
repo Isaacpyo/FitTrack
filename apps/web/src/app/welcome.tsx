@@ -10,10 +10,26 @@ import { expiredNoticeDismissed } from '../store/sessionSlice';
 import { colors, space } from '../theme';
 
 const FEATURES: { icon: IconName; title: string; body: string }[] = [
-  { icon: 'barbell-outline', title: 'Log every set', body: 'Sets, reps and weight in seconds, prefilled from last time.' },
-  { icon: 'trophy-outline', title: 'Personal records', body: 'Heaviest lift, estimated 1RM and best volume, tracked for you.' },
-  { icon: 'trending-up-outline', title: 'Progress & streaks', body: 'Charts per exercise, weekly volume and a streak to protect.' },
-  { icon: 'cloud-offline-outline', title: 'Works offline', body: 'Log in the basement gym; it syncs when you’re back online.' },
+  {
+    icon: 'barbell-outline',
+    title: 'Log every set',
+    body: 'Sets, reps and weight in seconds, prefilled from last time.',
+  },
+  {
+    icon: 'trophy-outline',
+    title: 'Personal records',
+    body: 'Heaviest lift, estimated 1RM and best volume, tracked for you.',
+  },
+  {
+    icon: 'trending-up-outline',
+    title: 'Progress & streaks',
+    body: 'Charts per exercise, weekly volume and a streak to protect.',
+  },
+  {
+    icon: 'cloud-offline-outline',
+    title: 'Works offline',
+    body: 'Log in the basement gym; it syncs when you’re back online.',
+  },
 ];
 
 export default function Welcome() {
@@ -28,9 +44,19 @@ export default function Welcome() {
         <Banner
           tone="warning"
           icon="time-outline"
-          action={<Button compact variant="ghost" label="Dismiss" onPress={() => dispatch(expiredNoticeDismissed())} />}
+          action={
+            <Button
+              compact
+              variant="ghost"
+              label="Dismiss"
+              onPress={() => dispatch(expiredNoticeDismissed())}
+            />
+          }
         >
-          <Body>Your session expired. Sign in again{pending ? ` to sync ${pending} saved change${pending === 1 ? '' : 's'}` : ''}.</Body>
+          <Body>
+            Your session expired. Sign in again
+            {pending ? ` to sync ${pending} saved change${pending === 1 ? '' : 's'}` : ''}.
+          </Body>
         </Banner>
       ) : null}
 
@@ -61,11 +87,23 @@ export default function Welcome() {
           </Body>
         ) : null}
         {demo.error ? (
-          <Body style={[styles.center, { color: colors.danger }]} >{describeApiError(demo.error)}</Body>
+          <Body style={[styles.center, { color: colors.danger }]}>
+            {describeApiError(demo.error)}
+          </Body>
         ) : null}
         <View style={styles.row}>
-          <Button label="Create account" variant="secondary" style={styles.flex} onPress={() => router.push('/signup')} />
-          <Button label="Sign in" variant="secondary" style={styles.flex} onPress={() => router.push('/login')} />
+          <Button
+            label="Create account"
+            variant="secondary"
+            style={styles.flex}
+            onPress={() => router.push('/signup')}
+          />
+          <Button
+            label="Sign in"
+            variant="secondary"
+            style={styles.flex}
+            onPress={() => router.push('/login')}
+          />
         </View>
         <Body muted style={[styles.center, { fontSize: 13 }]}>
           The demo is a private sandbox with sample data. It is deleted after 24 hours.
@@ -89,8 +127,21 @@ export default function Welcome() {
 
 const styles = StyleSheet.create({
   hero: { alignItems: 'center', gap: space.sm, paddingTop: space.xl },
-  logo: { width: 64, height: 64, borderRadius: 18, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' },
-  brand: { fontSize: 44, fontWeight: '900', fontStyle: 'italic', letterSpacing: -1.5, color: colors.text },
+  logo: {
+    width: 64,
+    height: 64,
+    borderRadius: 18,
+    backgroundColor: colors.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  brand: {
+    fontSize: 44,
+    fontWeight: '900',
+    fontStyle: 'italic',
+    letterSpacing: -1.5,
+    color: colors.text,
+  },
   tagline: { textAlign: 'center', maxWidth: 360 },
   row: { flexDirection: 'row', gap: space.sm, flexWrap: 'wrap' },
   flex: { flexGrow: 1, flexBasis: 140 },

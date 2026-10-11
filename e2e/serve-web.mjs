@@ -19,9 +19,13 @@ const types = {
 };
 
 createServer((req, res) => {
-  const path = normalize(decodeURIComponent(new URL(req.url ?? '/', 'http://x').pathname)).replace(/^(\.\.[/\\])+/, '');
+  const path = normalize(decodeURIComponent(new URL(req.url ?? '/', 'http://x').pathname)).replace(
+    /^(\.\.[/\\])+/,
+    '',
+  );
   let file = join(root, path);
-  if (!file.startsWith(root) || !existsSync(file) || statSync(file).isDirectory()) file = join(root, 'index.html');
+  if (!file.startsWith(root) || !existsSync(file) || statSync(file).isDirectory())
+    file = join(root, 'index.html');
   res.writeHead(200, { 'content-type': types[extname(file)] ?? 'application/octet-stream' });
   createReadStream(file).pipe(res);
 }).listen(port, () => console.log(`Serving ${root} on http://localhost:${port}`));

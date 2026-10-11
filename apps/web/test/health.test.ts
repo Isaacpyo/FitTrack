@@ -33,19 +33,31 @@ describe('mock health provider', () => {
 describe('syncHealthData', () => {
   it('stores 30 days and queues them for upload', async () => {
     const store = setup();
-    const ok = await store.dispatch(syncHealthData(createMockProvider(now), { requestPermission: true }));
+    const ok = await store.dispatch(
+      syncHealthData(createMockProvider(now), { requestPermission: true }),
+    );
     expect(ok).toBe(true);
     const state = store.getState();
     expect(Object.keys(state.activity.byDate)).toHaveLength(30);
-    expect(state.activity).toMatchObject({ healthConnected: true, healthSyncing: false, lastHealthSyncAt: now().toISOString() });
+    expect(state.activity).toMatchObject({
+      healthConnected: true,
+      healthSyncing: false,
+      lastHealthSyncAt: now().toISOString(),
+    });
     expect(state.outbox.items.map((i) => i.kind)).toEqual(['activity.upsert']);
   });
 
   it('reports a declined permission without recording anything', async () => {
     const store = setup();
-    const denied: HealthProvider = { ...createMockProvider(now), label: 'Apple Health', requestPermissions: async () => false };
+    const denied: HealthProvider = {
+      ...createMockProvider(now),
+      label: 'Apple Health',
+      requestPermissions: async () => false,
+    };
     expect(await store.dispatch(syncHealthData(denied, { requestPermission: true }))).toBe(false);
-    expect(store.getState().activity.healthError).toBe('Permission to read Apple Health was not granted.');
+    expect(store.getState().activity.healthError).toBe(
+      'Permission to read Apple Health was not granted.',
+    );
     expect(store.getState().outbox.items).toHaveLength(0);
   });
 
@@ -58,6 +70,9 @@ describe('syncHealthData', () => {
       },
     };
     await store.dispatch(syncHealthData(broken, { requestPermission: false }));
-    expect(store.getState().activity).toMatchObject({ healthSyncing: false, healthError: 'HealthKit is unavailable' });
+    expect(store.getState().activity).toMatchObject({
+      healthSyncing: false,
+      healthError: 'HealthKit is unavailable',
+    });
   });
 });

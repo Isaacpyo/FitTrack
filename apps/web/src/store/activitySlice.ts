@@ -50,5 +50,6 @@ const activitySlice = createSlice({
   },
 });
 
-export const { activityRecorded, healthSyncStarted, healthSyncSucceeded, healthSyncFailed } = activitySlice.actions;
+export const { activityRecorded, healthSyncStarted, healthSyncSucceeded, healthSyncFailed } =
+  activitySlice.actions;
 export default activitySlice.reducer;

@@ -23,7 +23,9 @@ export const syncHealthData =
       dispatch(healthSyncSucceeded({ at: now().toISOString() }));
       return true;
     } catch (err) {
-      dispatch(healthSyncFailed(err instanceof Error ? err.message : `Could not read ${provider.label}.`));
+      dispatch(
+        healthSyncFailed(err instanceof Error ? err.message : `Could not read ${provider.label}.`),
+      );
       return false;
     }
   };

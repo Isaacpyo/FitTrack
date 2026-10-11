@@ -48,7 +48,10 @@ export async function loadPersisted(storage: KeyValueStorage): Promise<Persisted
  * Rebuild preloaded state. Cached data without a token belongs to a session that expired: it is
  * kept (with its unsent queue) and the user is asked to sign in again.
  */
-export function toPreloadedState(persisted: PersistedState | null, token: string | null): Partial<RootState> {
+export function toPreloadedState(
+  persisted: PersistedState | null,
+  token: string | null,
+): Partial<RootState> {
   if (!persisted || !persisted.user) return {};
   return {
     session: { token, user: persisted.user, expired: !token },
@@ -69,7 +72,11 @@ export function toPreloadedState(persisted: PersistedState | null, token: string
 }
 
 /** Write persisted slices (debounced) whenever they change. Returns an unsubscribe function. */
-export function persistStore(store: Store<RootState>, storage: KeyValueStorage, delayMs = 250): () => void {
+export function persistStore(
+  store: Store<RootState>,
+  storage: KeyValueStorage,
+  delayMs = 250,
+): () => void {
   let last = selectPersisted(store.getState());
   let timer: ReturnType<typeof setTimeout> | null = null;
 
@@ -77,7 +84,9 @@ export function persistStore(store: Store<RootState>, storage: KeyValueStorage, 
     timer = null;
     const state = store.getState();
     if (!state.session.user) return; // signed out: storage was cleared on purpose
-    void storage.setItem(STATE_STORAGE_KEY, JSON.stringify(selectPersisted(state))).catch(() => undefined);
+    void storage
+      .setItem(STATE_STORAGE_KEY, JSON.stringify(selectPersisted(state)))
+      .catch(() => undefined);
   };
 
   const unsubscribe = store.subscribe(() => {
@@ -86,7 +95,9 @@ export function persistStore(store: Store<RootState>, storage: KeyValueStorage, 
       const a = next[k];
       const b = last[k];
       if (a && b && typeof a === 'object' && typeof b === 'object' && !Array.isArray(a)) {
-        return Object.keys(a).some((sub) => (a as Record<string, unknown>)[sub] !== (b as Record<string, unknown>)[sub]);
+        return Object.keys(a).some(
+          (sub) => (a as Record<string, unknown>)[sub] !== (b as Record<string, unknown>)[sub],
+        );
       }
       return a !== b;
     });

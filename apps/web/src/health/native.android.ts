@@ -33,8 +33,16 @@ export async function loadNativeProvider(): Promise<HealthProvider | null> {
         const timeRangeSlicer = { period: 'DAYS' as const, length: 1 };
         const [steps, energy, exercise] = await Promise.all([
           HC.aggregateGroupByPeriod({ recordType: 'Steps', timeRangeFilter, timeRangeSlicer }),
-          HC.aggregateGroupByPeriod({ recordType: 'ActiveCaloriesBurned', timeRangeFilter, timeRangeSlicer }),
-          HC.aggregateGroupByPeriod({ recordType: 'ExerciseSession', timeRangeFilter, timeRangeSlicer }),
+          HC.aggregateGroupByPeriod({
+            recordType: 'ActiveCaloriesBurned',
+            timeRangeFilter,
+            timeRangeSlicer,
+          }),
+          HC.aggregateGroupByPeriod({
+            recordType: 'ExerciseSession',
+            timeRangeFilter,
+            timeRangeSlicer,
+          }),
         ]);
 
         const days = new Map<string, DailyActivity>();
@@ -42,15 +50,29 @@ export async function loadNativeProvider(): Promise<HealthProvider | null> {
           const key = toDateKey(startTime);
           let entry = days.get(key);
           if (!entry) {
-            entry = { date: key, steps: 0, activeMinutes: 0, energyKcal: 0, source: 'health_connect' };
+            entry = {
+              date: key,
+              steps: 0,
+              activeMinutes: 0,
+              energyKcal: 0,
+              source: 'health_connect',
+            };
             days.set(key, entry);
           }
           return entry;
         };
         for (const g of steps) day(g.startTime).steps = Math.round(g.result.COUNT_TOTAL ?? 0);
-        for (const g of energy) day(g.startTime).energyKcal = Math.round(g.result.ACTIVE_CALORIES_TOTAL?.inKilocalories ?? 0);
-        for (const g of exercise) day(g.startTime).activeMinutes = Math.round((g.result.EXERCISE_DURATION_TOTAL?.inSeconds ?? 0) / 60);
-        return [...days.values()].filter((d) => d.date >= from && d.date <= to).sort((a, b) => a.date.localeCompare(b.date));
+        for (const g of energy)
+          day(g.startTime).energyKcal = Math.round(
+            g.result.ACTIVE_CALORIES_TOTAL?.inKilocalories ?? 0,
+          );
+        for (const g of exercise)
+          day(g.startTime).activeMinutes = Math.round(
+            (g.result.EXERCISE_DURATION_TOTAL?.inSeconds ?? 0) / 60,
+          );
+        return [...days.values()]
+          .filter((d) => d.date >= from && d.date <= to)
+          .sort((a, b) => a.date.localeCompare(b.date));
       },
     };
   } catch {

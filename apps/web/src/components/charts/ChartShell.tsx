@@ -31,7 +31,15 @@ interface ChartShellProps {
  * keyboard focus select a datum), a readout row (values lead, labels follow), and a data-table
  * twin so no value is only reachable through interaction.
  */
-export function ChartShell({ data, summary, height, children, slots, valueHeader, testID }: ChartShellProps) {
+export function ChartShell({
+  data,
+  summary,
+  height,
+  children,
+  slots,
+  valueHeader,
+  testID,
+}: ChartShellProps) {
   const [width, setWidth] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [showTable, setShowTable] = useState(false);
@@ -44,13 +52,20 @@ export function ChartShell({ data, summary, height, children, slots, valueHeader
         {datum ? (
           <>
             <Text style={styles.readoutValue}>{datum.display}</Text>
-            <Text style={styles.readoutLabel}>{selected === null ? `Latest · ${datum.description}` : datum.description}</Text>
+            <Text style={styles.readoutLabel}>
+              {selected === null ? `Latest · ${datum.description}` : datum.description}
+            </Text>
           </>
         ) : null}
       </View>
 
       <View style={{ height }} onLayout={(e) => setWidth(Math.floor(e.nativeEvent.layout.width))}>
-        <View style={StyleSheet.absoluteFill} accessible accessibilityRole="image" accessibilityLabel={summary}>
+        <View
+          style={StyleSheet.absoluteFill}
+          accessible
+          accessibilityRole="image"
+          accessibilityLabel={summary}
+        >
           {width > 0 ? children(width, selected) : null}
         </View>
         {width > 0 ? (
@@ -65,7 +80,13 @@ export function ChartShell({ data, summary, height, children, slots, valueHeader
                 onHoverOut={() => setSelected(null)}
                 onFocus={() => setSelected(i)}
                 onBlur={() => setSelected(null)}
-                style={{ position: 'absolute', top: 0, bottom: 0, left: slot.x - slot.w / 2, width: slot.w }}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  bottom: 0,
+                  left: slot.x - slot.w / 2,
+                  width: slot.w,
+                }}
               />
             ))}
           </View>
@@ -78,7 +99,9 @@ export function ChartShell({ data, summary, height, children, slots, valueHeader
         accessibilityState={{ expanded: showTable }}
         style={styles.tableToggle}
       >
-        <Text style={styles.tableToggleText}>{showTable ? 'Hide data table' : 'Show data table'}</Text>
+        <Text style={styles.tableToggleText}>
+          {showTable ? 'Hide data table' : 'Show data table'}
+        </Text>
       </Pressable>
       {showTable ? (
         <View style={styles.table}>
@@ -99,13 +122,24 @@ export function ChartShell({ data, summary, height, children, slots, valueHeader
 }
 
 const styles = StyleSheet.create({
-  readout: { flexDirection: 'row', alignItems: 'baseline', gap: space.sm, minHeight: 28, flexWrap: 'wrap' },
+  readout: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: space.sm,
+    minHeight: 28,
+    flexWrap: 'wrap',
+  },
   readoutValue: { color: colors.text, fontSize: 20, fontWeight: '800' },
   readoutLabel: { color: colors.textMuted, fontSize: 13 },
   tableToggle: { alignSelf: 'flex-start', paddingVertical: 6 },
   tableToggleText: { color: colors.textMuted, fontSize: 13, textDecorationLine: 'underline' },
   table: { borderTopWidth: 1, borderTopColor: colors.border },
-  tableRow: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.border, paddingVertical: 6 },
+  tableRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    paddingVertical: 6,
+  },
   tableHead: { borderBottomColor: colors.borderStrong },
   tableHeadText: { color: colors.textMuted, fontWeight: '700' },
   tableCell: { flex: 1, color: colors.text, fontSize: 13 },

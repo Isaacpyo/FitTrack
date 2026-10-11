@@ -1,7 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import type { Routine } from '@fittrack/shared';
 import { describe, expect, it } from 'vitest';
-import { draftFromWorkout, draftToWorkout, newDraft, prefillSets, type Draft } from '../src/store/draft';
+import {
+  draftFromWorkout,
+  draftToWorkout,
+  newDraft,
+  prefillSets,
+  type Draft,
+} from '../src/store/draft';
 import { workout } from './fixtures';
 
 const now = new Date('2026-10-10T17:30:00.000Z');
@@ -20,7 +26,11 @@ const routine: Routine = {
 
 describe('newDraft', () => {
   it('prefills routine exercises, preferring the weight used last time', () => {
-    const history = [workout(undefined, { exercises: [{ exerciseId: 'bench-press', sets: [{ id: 'x', reps: 6, weightKg: 72.5 }] }] })];
+    const history = [
+      workout(undefined, {
+        exercises: [{ exerciseId: 'bench-press', sets: [{ id: 'x', reps: 6, weightKg: 72.5 }] }],
+      }),
+    ];
     const d = newDraft({ id: randomUUID(), now, history, newId: randomUUID, routine });
     expect(d.name).toBe('Push Day');
     expect(d.routineId).toBe(routine.id);
@@ -30,12 +40,16 @@ describe('newDraft', () => {
   });
 
   it('starts a never-logged exercise with a single blank set', () => {
-    expect(prefillSets('deadlift', [], randomUUID)).toEqual([{ id: expect.any(String), weightKg: '', reps: '' }]);
+    expect(prefillSets('deadlift', [], randomUUID)).toEqual([
+      { id: expect.any(String), weightKg: '', reps: '' },
+    ]);
     expect(prefillSets('pull-up', [], randomUUID)[0]).toMatchObject({ weightKg: '0' });
   });
 
   it('names an empty workout after the time of day', () => {
-    expect(newDraft({ id: randomUUID(), now, history: [], newId: randomUUID }).name).toBe('Evening workout');
+    expect(newDraft({ id: randomUUID(), now, history: [], newId: randomUUID }).name).toBe(
+      'Evening workout',
+    );
   });
 });
 

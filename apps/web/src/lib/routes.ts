@@ -4,5 +4,7 @@
  */
 export function newWorkoutHref(routineId?: string): string {
   const start = Date.now().toString(36);
-  return routineId ? `/workout/new?routineId=${routineId}&start=${start}` : `/workout/new?start=${start}`;
+  return routineId
+    ? `/workout/new?routineId=${routineId}&start=${start}`
+    : `/workout/new?start=${start}`;
 }

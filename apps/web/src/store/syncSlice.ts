@@ -59,11 +59,19 @@ const syncSlice = createSlice({
         state.serverWaking = false;
       })
       .addCase(signedOut, (state, action) =>
-        action.payload.reason === 'user' ? { ...initialState, online: state.online } : { ...state, flushing: false, pulling: false },
+        action.payload.reason === 'user'
+          ? { ...initialState, online: state.online }
+          : { ...state, flushing: false, pulling: false },
       );
   },
 });
 
-export const { connectivityChanged, serverWakingChanged, flushStarted, flushFinished, pullStarted, pullFailed } =
-  syncSlice.actions;
+export const {
+  connectivityChanged,
+  serverWakingChanged,
+  flushStarted,
+  flushFinished,
+  pullStarted,
+  pullFailed,
+} = syncSlice.actions;
 export default syncSlice.reducer;
