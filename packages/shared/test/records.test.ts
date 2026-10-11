@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { analyzeRecords, detectNewRecords, estimateOneRepMax, recordEventsByWorkout } from '../src';
+import {
+  analyzeRecords,
+  detectNewRecords,
+  estimateOneRepMax,
+  headlineRecords,
+  recordEventsByWorkout,
+} from '../src';
 import { workout } from './helpers';
 
 describe('estimateOneRepMax', () => {
@@ -135,5 +141,18 @@ describe('detectNewRecords', () => {
 
   it('returns nothing for a first-ever exercise', () => {
     expect(detectNewRecords([], workout('2026-09-01', { deadlift: [[100, 5]] }))).toEqual([]);
+  });
+});
+
+describe('headlineRecords', () => {
+  it('keeps the most meaningful record per exercise per workout, in order', () => {
+    const w1 = workout('2026-09-01', { 'bench-press': [[80, 5]], 'back-squat': [[100, 5]] });
+    const w2 = workout('2026-09-08', { 'bench-press': [[82.5, 5]], 'back-squat': [[100, 8]] });
+    const { events } = analyzeRecords([w1, w2]);
+    expect(events).toHaveLength(5);
+    expect(headlineRecords(events).map((e) => [e.exerciseId, e.kind])).toEqual([
+      ['bench-press', 'weight'],
+      ['back-squat', 'e1rm'],
+    ]);
   });
 });

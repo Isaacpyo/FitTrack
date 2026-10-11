@@ -188,3 +188,20 @@ export function detectNewRecords(
   }
   return events;
 }
+
+const HEADLINE_PRIORITY: RecordKind[] = ['weight', 'e1rm', 'reps', 'volume'];
+
+/**
+ * One record per exercise per workout — the most meaningful kind (heaviest weight, then
+ * estimated 1RM, reps, volume) — so a progressive session reads "3 PRs", not "9".
+ */
+export function headlineRecords(events: RecordEvent[]): RecordEvent[] {
+  const best = new Map<string, RecordEvent>();
+  for (const e of events) {
+    const key = `${e.workoutId}:${e.exerciseId}`;
+    const current = best.get(key);
+    if (!current || HEADLINE_PRIORITY.indexOf(e.kind) < HEADLINE_PRIORITY.indexOf(current.kind))
+      best.set(key, e);
+  }
+  return events.filter((e) => best.get(`${e.workoutId}:${e.exerciseId}`) === e);
+}

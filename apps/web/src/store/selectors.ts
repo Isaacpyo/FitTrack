@@ -4,6 +4,7 @@ import {
   analyzeRecords,
   dayStreak,
   exerciseUsage,
+  headlineRecords,
   recordEventsByWorkout,
   weekStreak,
   workoutDays,
@@ -31,7 +32,11 @@ export const selectActivity = createSelector([(s: RootState) => s.activity.byDat
 );
 
 export const selectRecordAnalysis = createSelector([selectWorkouts], (workouts) => analyzeRecords(workouts));
-export const selectRecordEventsByWorkout = createSelector([selectRecordAnalysis], (a) => recordEventsByWorkout(a.events));
+/** Headline PRs (one per exercise) grouped by workout, for badges and celebrations. */
+export const selectRecordEventsByWorkout = createSelector([selectRecordAnalysis], (a) =>
+  recordEventsByWorkout(headlineRecords(a.events)),
+);
+export const selectRecentRecords = createSelector([selectRecordAnalysis], (a) => headlineRecords(a.events).slice(-5).reverse());
 export const selectExerciseUsage = createSelector([selectWorkouts], (w) => exerciseUsage(w));
 
 export const selectStreaks = createSelector(
