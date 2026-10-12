@@ -1,0 +1,41 @@
+{
+  "name": "fittrack",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FitTrack — offline-first workout tracker (Expo + Redux Toolkit + Node/Postgres)",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "docker compose up --build",
+    "dev:api": "npm run dev -w @fittrack/api",
+    "dev:web": "npm run start -w @fittrack/web",
+    "db:migrate": "npm run migrate -w @fittrack/api",
+    "db:seed": "npm run seed -w @fittrack/api",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:e2e": "npm run e2e:build && playwright test",
+    "build:web": "npm run build -w @fittrack/web",
+    "build:api": "npm run build -w @fittrack/api",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "e2e:build": "npm run build -w @fittrack/api && EXPO_PUBLIC_API_URL=http://localhost:4310 npm run build -w @fittrack/web",
+    "preview:web": "node e2e/serve-web.mjs apps/web/dist 8080"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@playwright/test": "^1.64.0",
+    "@types/node": "^22.19.0",
+    "eslint": "^9.39.0",
+    "prettier": "^3.9.10",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.1",
+    "vitest": "^5.0.3"
+  }
+}

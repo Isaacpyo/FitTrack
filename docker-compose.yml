@@ -1,0 +1,70 @@
+# The whole FitTrack stack locally: Postgres + API + web app.
+#   docker compose up --build        → http://localhost:8080 (API on :4000)
+#   docker compose run --rm seed     → (re)create demo@fittrack.dev / demo-password
+# Postgres is published on :5432 with the same credentials the test suites default to.
+name: fittrack
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fittrack
+    ports:
+      - '5432:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/10-test-databases.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d fittrack']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: '4000'
+      DATABASE_URL: postgres://postgres:postgres@db:5432/fittrack
+      # Local-only secret; Render generates a real one (see render.yaml).
+      JWT_SECRET: local-docker-compose-secret-change-me-0123456789
+      CORS_ORIGINS: http://localhost:8080,http://localhost:8081
+      DEMO_TTL_HOURS: '24'
+    ports:
+      - '4000:4000'
+    depends_on:
+      db:
+        condition: service_healthy
+
+  seed:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    command: ['node', 'dist/seed.js']
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://postgres:postgres@db:5432/fittrack
+      JWT_SECRET: local-docker-compose-secret-change-me-0123456789
+    depends_on:
+      api:
+        condition: service_healthy
+    profiles: ['seed']
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        EXPO_PUBLIC_API_URL: http://localhost:4000
+    ports:
+      - '8080:80'
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  db-data:

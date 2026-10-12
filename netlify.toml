@@ -1,7 +1,39 @@
-[build]
-  base = "frontend"
-  command = "npm run build"
-  publish = ".next"
+# Deploys the Expo web export (apps/web) to the existing FitTrack Netlify site.
+# npm detects the workspace from apps/web and installs at the repo root, so the
+# shared package resolves without extra configuration.
+#
+# Required site environment variable (Site configuration → Environment variables):
+#   EXPO_PUBLIC_API_URL = https://<your-render-service>.onrender.com
+# The build fails fast with a clear message if it is missing.
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
+[build]
+  base = "apps/web"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Single-page app: let the client-side router handle every path.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/_expo/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
