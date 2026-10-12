@@ -1,64 +1,81 @@
 # FitTrack
 
-[![CI](https://github.com/Isaacpyo/FitTrack/actions/workflows/ci.yml/badge.svg)](https://github.com/Isaacpyo/FitTrack/actions/workflows/ci.yml)
+[![CI](https://github.com/temitopeagbola/FitTrack/actions/workflows/ci.yml/badge.svg)](https://github.com/temitopeagbola/FitTrack/actions/workflows/ci.yml)
 
-**FitTrack is an offline-first workout tracker for people who train where the signal dies.**
-Log sets, reps and weight in seconds (prefilled from last session), save reusable routines,
-and watch your personal records, strength curve, weekly volume and streaks update instantly.
-Each change is saved on the device first and synced to a Node/Postgres API in the background,
-so a basement gym never costs you a workout. On iOS and Android development builds it also
-reads steps and activity from Apple Health or Health Connect. It is one Expo codebase that
-ships to iOS, Android and the web.
+An offline-first workout tracker for people who lift and want to log every set, even in a gym
+with no signal. It runs on iOS, Android and the web from one Expo codebase.
 
-**Live demo: <https://fittrack.temitopeagbola.com>**. Click **Try the demo** to get a private
-sandbox account with 10 weeks of training history. The API runs on a free Render instance that
-sleeps when idle, so the first request can take up to a minute. The app shows a "Waking the
-server…" banner while it starts.
+## Overview
+
+Losing a workout because the gym has no signal is frustrating, and so is waiting on a spinner
+between sets. FitTrack saves everything on the device first. Workouts, routines and health data
+are written to local state and a persisted outbox, then a background sync engine replays them
+against a Node.js + Postgres API whenever a connection is available. Personal records, streaks
+and charts are calculated on the device from the same shared code the API uses, so they work
+offline and include workouts that haven't synced yet. On iOS and Android development builds, the
+app also reads daily steps and activity from Apple Health or Health Connect.
+
+Production URL (Netlify, see [Deployment](#deployment)): <https://fittrack.temitopeagbola.com>
 
 ![FitTrack screenshots: dashboard, logging a workout offline, history with an unsynced workout, progress chart](docs/screenshots.png)
 
-## Features
+## Key features
 
-- **Workout logging.** Track exercises, sets, reps and weight against a 36-exercise catalog with
-  search and muscle-group filters. Sets are prefilled from the last time you did the exercise,
-  with "last time" hints. Drafts are persisted, so an in-progress workout survives the app closing.
-- **Reusable routines.** Build Push / Pull / Legs-style templates with target sets, reps and
-  weight, and start one with a single tap.
-- **Personal records.** Heaviest weight, estimated 1RM (Epley), best set volume and rep records
-  for bodyweight moves. New PRs are highlighted when you save and appear as badges in history.
-- **Progress charts.** Estimated 1RM per session for any exercise, 12 weeks of training volume,
-  and 14 days of steps against your goal. Each chart has press/hover/keyboard readouts and a
-  data-table view.
-- **Streaks.** An active-day streak (a workout, or your step goal reached) and a weekly
-  workout-goal streak.
-- **Health sync.** Apple Health (HealthKit) on iOS and Health Connect on Android, in
-  development builds. The web and Expo Go use a simulated provider, as described in
-  [Stack decisions](#stack-decisions-and-substitutions).
-- **Offline-first sync.** A persisted outbox with per-entity coalescing, ordered replay,
-  exponential backoff, last-write-wins conflict handling and incremental pulls with
-  tombstones. Offline status, pending changes and failed changes are all visible in the UI.
-- **Accounts.** Email/password sign-up and sign-in, plus a one-click demo. Expired sessions keep
-  unsynced work until you sign back in. Sign-out and account deletion are available in Settings.
-- **Product polish.** Loading, empty and error states everywhere. The layout is responsive down
-  to 375px, and controls have accessible labels and visible focus rings. A "waking server"
-  banner covers the free-tier cold start.
+- **Workout logging.** Log exercises, sets, reps and weight from a 36-exercise catalog with search
+  and muscle-group filters. Sets are prefilled from the last time you did the exercise. In-progress
+  workouts are kept as a draft, so closing the app doesn't lose them.
+- **Reusable routines.** Templates with target sets, reps and weight that start a workout in one
+  tap.
+- **Personal records.** Heaviest weight, estimated 1RM (Epley), best set volume, and rep records
+  for bodyweight exercises. New PRs are shown when you save and as badges in history.
+- **Progress charts.** Estimated 1RM per session for each exercise, weekly volume for the last 12
+  weeks, and daily steps for the last 14 days against your goal. Every chart has a data-table view.
+- **Streaks.** An active-day streak (a workout, or your step goal met) and a weekly workout-goal
+  streak.
+- **Health data.** Reads steps, active energy and exercise minutes from Apple Health (iOS) or
+  Health Connect (Android) in development builds. The web and Expo Go use a simulated provider
+  (see [Health data on the web](#health-data-on-the-web)).
+- **Offline-first sync.** A persisted outbox merges edits to the same item and replays them in
+  order, retries with exponential backoff, keeps the newest edit when two devices conflict, and
+  pulls changes (including deletions) incrementally. Offline status and pending or failed changes
+  are shown in the UI.
+- **Accounts.** Email/password sign-up and sign-in, plus a one-click **Try the demo** that creates
+  a private sandbox with 10 weeks of training history. Expired sessions keep unsynced work until
+  you sign in again. Settings covers profile and goals, sign-out and account deletion.
+- **Free-tier friendly.** A "Waking the server…" banner appears while the sleeping Render instance
+  starts up.
+
+## Tech stack
+
+| Layer    | Choice                                                                                     |
+| -------- | ------------------------------------------------------------------------------------------ |
+| App      | Expo SDK 57, Expo Router, React Native 0.86, react-native-web, TypeScript (strict)         |
+| State    | Redux Toolkit (slices, entity adapters, listener middleware) and RTK Query                 |
+| Charts   | In-house SVG line and bar charts on `react-native-svg`                                     |
+| Health   | `@kingstinct/react-native-healthkit` (iOS), `react-native-health-connect` (Android), mock  |
+| API      | Node.js 22, Fastify 5, Zod, `@fastify/jwt`, `@fastify/rate-limit`, `@fastify/helmet`, `pg` |
+| Database | PostgreSQL 17 (Docker locally, Neon in production)                                         |
+| Auth     | Email + password (scrypt via `node:crypto`), JWT bearer tokens                             |
+| Tests    | Vitest (unit, and API integration against real Postgres), Playwright (end-to-end)          |
+| Tooling  | npm workspaces, ESLint, Prettier, tsup, Docker Compose, GitHub Actions                     |
+| Hosting  | Netlify (web export), Render free web service (API), Neon (Postgres)                       |
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  subgraph Client["Expo app — iOS · Android · Web (Netlify)"]
+  subgraph Client["apps/web: Expo app (iOS · Android · Web on Netlify)"]
     UI["Expo Router screens"] --> Store["Redux Toolkit store"]
     Store <--> Persist[("AsyncStorage / localStorage<br/>+ SecureStore token")]
     Health["HealthProvider<br/>HealthKit · Health Connect · Mock"] --> Store
     Store --> Outbox["Outbox<br/>(queued writes)"]
     Outbox --> Engine["Sync engine<br/>(listener middleware)"]
-    Engine --> RTKQ["RTK Query<br/>wake-aware base query"]
+    Engine --> RTKQ["RTK Query"]
   end
 
   RTKQ -- "HTTPS · JSON · Bearer JWT" --> API
 
-  subgraph Render["Render free web service"]
+  subgraph Render["apps/api on Render"]
     API["Fastify API<br/>Zod validation · rate limits · CORS"]
   end
 
@@ -77,69 +94,78 @@ sequenceDiagram
   participant E as Sync engine
   participant A as API
   U->>S: Save workout (offline)
-  S->>S: Update local state (PRs/streaks recompute instantly)
-  S->>O: Queue PUT /workouts/:id (coalesced per workout)
-  Note over E: connectivity returns / app resumes / timer fires
-  E->>A: PUT /workouts/:id (idempotent, client UUID)
-  A-->>E: { applied, item } — last-write-wins on updatedAt
-  E->>O: Remove item (4xx → "failed" list, 5xx/network → backoff)
+  S->>S: Update local state (PRs and streaks recompute)
+  S->>O: Queue PUT /workouts/:id (merged per workout)
+  Note over E: connection returns / app resumes / retry timer fires
+  E->>A: PUT /workouts/:id (idempotent, client-generated UUID)
+  A-->>E: { applied, item } (newest updatedAt wins)
+  E->>O: Remove item (4xx → "failed" list, 5xx or network → backoff)
   E->>A: GET /sync/changes?since=cursor
-  A-->>E: Changed rows + tombstones
-  E->>S: Merge, skipping entities with unsent local edits
+  A-->>E: Changed rows + deletions
+  E->>S: Merge, skipping items with unsent local edits
 ```
 
-There is more detail, including the data model, sync protocol and trade-offs, in
-[`docs/PLAN.md`](docs/PLAN.md).
+[`docs/PLAN.md`](docs/PLAN.md) covers the sync protocol and trade-offs in more depth.
 
-## Tech stack
+### API
 
-| Layer    | Choice                                                                                  |
-| -------- | --------------------------------------------------------------------------------------- |
-| App      | Expo SDK 57, Expo Router, React Native 0.86, react-native-web, TypeScript (strict)      |
-| State    | Redux Toolkit (slices, entity adapters, listener middleware) and RTK Query              |
-| Charts   | Small in-house SVG line/bar charts on `react-native-svg`                                |
-| Health   | `@kingstinct/react-native-healthkit`, `react-native-health-connect`, simulated provider |
-| API      | Node 22, Fastify 5, Zod, `@fastify/jwt`, `@fastify/rate-limit`, `@fastify/helmet`, `pg` |
-| Database | Postgres 17 (Docker locally, Neon in production)                                        |
-| Tests    | Vitest (unit + API integration against real Postgres), Playwright (e2e)                 |
-| Tooling  | npm workspaces, ESLint, Prettier, tsup, Docker, GitHub Actions                          |
-| Hosting  | Netlify (web), Render free web service (API), Neon free Postgres                        |
+| Method & path                               | Auth | Purpose                                                  |
+| ------------------------------------------- | ---- | -------------------------------------------------------- |
+| `GET /healthz`                              | No   | Liveness and database check                              |
+| `GET /exercises`                            | No   | Exercise catalog                                         |
+| `POST /auth/signup`, `POST /auth/login`     | No   | Create an account or sign in; returns a JWT and the user |
+| `POST /auth/demo`                           | No   | Create a seeded demo sandbox account                     |
+| `GET /me`, `PATCH /me`, `DELETE /me`        | Yes  | Profile and goals; delete the account and its data       |
+| `GET /sync/changes?since=`                  | Yes  | Incremental pull of workouts, routines and activity      |
+| `PUT /workouts/:id`, `DELETE /workouts/:id` | Yes  | Idempotent upsert / soft delete of a workout             |
+| `PUT /routines/:id`, `DELETE /routines/:id` | Yes  | Idempotent upsert / soft delete of a routine             |
+| `PUT /activity`                             | Yes  | Batch upsert of daily steps and activity                 |
 
-## Stack decisions and substitutions
+### Data model
 
-- **The web build uses a mocked health-data provider.** This is the one requested swap.
-  Browsers have no API for Apple Health or Health Connect, and Expo Go cannot load custom native
-  modules. So on the web, in Expo Go, or when `EXPO_PUBLIC_HEALTH_PROVIDER=mock` is set, FitTrack
-  reads simulated daily steps, active minutes and energy instead. The data is deterministic per
-  date, and it comes from the same generator the demo seed uses, so the numbers match what the
-  server already holds. In an iOS or Android **development build** (`npx expo run:ios`,
-  `npx expo run:android` or EAS), the app loads the real HealthKit or Health Connect provider and
-  asks for read-only permission. Native modules are loaded lazily, so the web and Expo Go never
-  import them.
-- **No chart library.** The project brief didn't name one, and Victory Native XL needs Skia
-  (CanvasKit WASM on the web). Three small SVG components keep the web bundle lean and render the
-  same on every platform. Their colours were checked with a palette validator for the dark theme.
-- **Fastify** was chosen for the "Node.js API" because it is fast, has typed plugins and makes
-  request injection easy for tests. The SQL is hand-written with `pg`: workout sets are
-  normalised for analytics, and routine templates are stored as Zod-validated JSONB.
-- **Passwords** are hashed with `node:crypto` scrypt, which avoids native dependencies on
-  Render's build image.
-- **Offline-first design.** IDs are generated on the client, so records can be created offline
-  and retries are idempotent. Stats are computed on the client from local data with the shared
-  pure functions, so they work offline and include unsynced workouts.
-- **Demo accounts are per visitor.** Each "Try the demo" creates its own sandbox, seeded
-  relative to the visitor's date, so streaks and charts always look current. Sandboxes are
-  purged after 24 h. Redis and Mongo aren't part of this stack and aren't used.
+The migrations in [`apps/api/src/db/migrations.ts`](apps/api/src/db/migrations.ts) create
+`users`, `exercises` (seeded from the shared catalog), `routines` (exercises stored as validated
+JSONB), `workouts`, `workout_sets` and `activity_daily`. Workouts and routines are soft-deleted,
+so deletions reach a user's other devices on their next pull.
+
+### Health data on the web
+
+Browsers can't access Apple Health or Health Connect, and Expo Go can't load custom native
+modules. So the web build, Expo Go, and any build with `EXPO_PUBLIC_HEALTH_PROVIDER=mock` use a
+deterministic simulated provider instead. It shares its generator with the demo-account seed, so
+the numbers match what the server holds. iOS and Android development builds load the real
+HealthKit or Health Connect provider and request read-only access.
+
+## Project structure
+
+```
+apps/
+  api/               Fastify API: routes, SQL repositories, migrations, demo seeding, tests
+  web/               Expo app: src/app (routes), src/store (Redux + sync engine),
+                     src/health (providers), src/components (UI + charts), tests
+packages/
+  shared/            Zod schemas, exercise catalog, PR/streak/volume maths, demo data
+e2e/                 Playwright smoke tests + static server for the web export
+docker/              Postgres init script (test databases), nginx config for the web image
+docs/                Architecture plan and README screenshots
+.github/workflows/   CI
+docker-compose.yml   Whole stack locally (Postgres, API, web, optional seed)
+render.yaml          Render blueprint for the API
+netlify.toml         Netlify build for the web export
+```
 
 ## Getting started
 
-Prerequisites: Node 22+, npm 10+ and Docker.
+### Prerequisites
+
+- Node.js 22 (`.nvmrc`; `engines` requires `>=22`) with the npm it ships with
+- Docker with Compose v2 (for Postgres and the full stack)
 
 ### Option A: the whole stack in Docker
 
 ```bash
-docker compose up --build             # Postgres + API (:4000) + web (:8080)
-docker compose run --rm seed          # optional: demo@fittrack.dev / demo-password
+docker compose up --build             # Postgres :5432, API :4000, web :8080
+docker compose run --rm seed          # optional: fixed account demo@fittrack.dev / demo-password
 ```
 
 Open <http://localhost:8080> and click **Try the demo**.
@@ -149,110 +175,119 @@ Open <http://localhost:8080> and click **Try the demo**.
 ```bash
 npm ci
 docker compose up -d db               # Postgres on :5432 (also creates the test databases)
-cp .env.example .env                  # defaults work locally
-npm run dev:api                       # API on http://localhost:4000 (migrates on start)
-npm run db:seed                       # optional fixed account
-npm run dev:web                       # Expo dev server; press "w" for the browser
+cp .env.example .env                  # the defaults work for local development
+npm run dev:api                       # API on http://localhost:4000 (applies migrations on start)
+npm run db:seed                       # optional: fixed demo account (see above)
+npm run dev:web                       # Expo dev server; press "w" to open the web app
 ```
 
-### Run it on your phone
+### Environment variables
 
-- **Expo Go** (quickest, uses simulated health data): run `npm run dev:web` and scan the QR code
-  it prints with the Expo Go app (Android) or the Camera app (iOS). Point the app at your
-  computer with `EXPO_PUBLIC_API_URL=http://<your-LAN-IP>:4000` in `apps/web/.env`.
+[`.env.example`](.env.example) documents every variable. The API reads `.env` from the repo
+root. Values starting `EXPO_PUBLIC_` are baked into the app bundle at build time, so they must
+never hold secrets.
+
+| Variable                                                                          | Used by     | Purpose                                                       |
+| --------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------- |
+| `DATABASE_URL`                                                                    | API         | Postgres connection string                                    |
+| `JWT_SECRET`                                                                      | API         | Token signing secret; required (32+ characters) in production |
+| `JWT_EXPIRES_IN`                                                                  | API         | Session token lifetime                                        |
+| `CORS_ORIGINS`                                                                    | API         | Browser origins allowed to call the API                       |
+| `NODE_ENV`, `HOST`, `PORT`, `LOG_LEVEL`                                           | API         | Runtime environment, bind address, port and log verbosity     |
+| `DATABASE_POOL_MAX`                                                               | API         | Postgres connection pool size                                 |
+| `RUN_MIGRATIONS`                                                                  | API         | Apply migrations when the server starts                       |
+| `DEMO_TTL_HOURS`                                                                  | API         | How long demo sandbox accounts live before being purged       |
+| `RATE_LIMIT_PER_MINUTE`, `AUTH_RATE_LIMIT_PER_MINUTE`, `DEMO_RATE_LIMIT_PER_HOUR` | API         | Per-IP rate limits                                            |
+| `TEST_DATABASE_URL`, `E2E_DATABASE_URL`                                           | Tests       | Databases for the integration and end-to-end suites           |
+| `EXPO_PUBLIC_API_URL`                                                             | App (build) | API base URL; required for the Netlify build                  |
+| `EXPO_PUBLIC_HEALTH_PROVIDER`                                                     | App (build) | Set to `mock` to force simulated health data on iOS/Android   |
+
+### Run it on a phone
+
+- **Expo Go** (simulated health data): run `npm run dev:web` and scan the QR code it prints.
+  Point the app at your machine by setting `EXPO_PUBLIC_API_URL` to `http://<your-LAN-IP>:4000`
+  in `apps/web/.env`.
 - **Development build** (real Apple Health / Health Connect): in `apps/web`, run
-  `npx expo run:ios` or `npx expo run:android`. Or build in the cloud with
-  `eas build --profile development`, which needs a free Expo account. HealthKit also needs an
-  Apple developer team for signing.
+  `npm run ios` or `npm run android`. This needs Xcode or the Android SDK. HealthKit also needs
+  an Apple developer team for signing.
+
+## Scripts
+
+Run these from the repo root.
+
+| Command                                   | What it does                                             |
+| ----------------------------------------- | -------------------------------------------------------- |
+| `npm run dev`                             | `docker compose up --build`: the whole stack             |
+| `npm run dev:api`                         | API with hot reload (`tsx watch`)                        |
+| `npm run dev:web`                         | Expo dev server                                          |
+| `npm run db:migrate`                      | Apply database migrations and sync the exercise catalog  |
+| `npm run db:seed`                         | Recreate the fixed demo account with fresh history       |
+| `npm run build:api`                       | Bundle the API to `apps/api/dist` (tsup)                 |
+| `npm run build:web`                       | Export the web app to `apps/web/dist`                    |
+| `npm run preview:web`                     | Serve `apps/web/dist` on <http://localhost:8080>         |
+| `npm test`                                | Unit and integration tests in every workspace            |
+| `npm run test:e2e`                        | Build the API and web app, then run the Playwright suite |
+| `npm run lint` / `npm run typecheck`      | ESLint / TypeScript across workspaces                    |
+| `npm run format` / `npm run format:check` | Prettier write / check                                   |
 
 ## Testing
 
-| What                       | Command                                                     | Notes                                                       |
-| -------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------- |
-| Everything except e2e      | `npm test`                                                  | Needs Postgres (`docker compose up -d db`)                  |
-| Shared logic (59 tests)    | `npm test -w @fittrack/shared`                              | PRs, streaks, volume, schemas, demo data                    |
-| API integration (29 tests) | `npm test -w @fittrack/api`                                 | Real Postgres; auth, ownership, last-write-wins, sync, demo |
-| App logic (39 tests)       | `npm test -w @fittrack/web`                                 | Outbox, sync engine against a fake API, persistence, health |
-| E2E smoke (Playwright)     | `npx playwright install chromium && npm run test:e2e`       | Demo → PR → offline logging → reconnect → server check      |
-| Lint / types / format      | `npm run lint && npm run typecheck && npm run format:check` |                                                             |
+| Suite                  | Command                                               | Notes                                                         |
+| ---------------------- | ----------------------------------------------------- | ------------------------------------------------------------- |
+| All unit + integration | `npm test`                                            | Needs Postgres: `docker compose up -d db`                     |
+| Shared logic           | `npm test -w @fittrack/shared`                        | PRs, streaks, volume, schemas, demo data                      |
+| API integration        | `npm test -w @fittrack/api`                           | Real Postgres: auth, ownership, conflict handling, sync, demo |
+| App logic              | `npm test -w @fittrack/web`                           | Outbox, sync engine against a fake API, persistence, health   |
+| End-to-end             | `npx playwright install chromium && npm run test:e2e` | Demo → PR → offline logging → reconnect → server check        |
 
-CI (GitHub Actions) runs all of these on every push and pull request, and also builds the
-Docker images.
+CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs format, lint, typecheck, unit +
+integration and end-to-end tests against a Postgres service on every push and pull request. It
+also builds the Docker images.
 
 ## Deployment
 
-The web app deploys to Netlify, the API to Render and the database to Neon, all on free tiers.
+The web export goes to Netlify, the API to a Render free web service, and the database to Neon.
 
-1. **Neon (Postgres).** Create a project and a database named `fittrack`. Copy the **pooled**
-   connection string (it ends in `?sslmode=require`).
-2. **Render (API).** Go to **New → Blueprint**, select this repo, and Render reads
-   [`render.yaml`](render.yaml). Paste the Neon string into `DATABASE_URL`. `JWT_SECRET` is
-   generated for you. Check that `CORS_ORIGINS` includes `https://fittrack.temitopeagbola.com`
-   (and your Netlify deploy-preview pattern, if you use previews). Migrations run on every boot.
-   Then visit `https://<service>.onrender.com/healthz`, which should return `{"ok":true,"db":"up"}`.
-3. **Netlify (web).** The existing site already uses this repo and
-   [`netlify.toml`](netlify.toml), which builds `apps/web` with `npm run build` and publishes
-   `apps/web/dist`. Add the site environment variable
-   `EXPO_PUBLIC_API_URL=https://<service>.onrender.com`. The build deliberately fails without
-   it, so a deploy can never point at localhost. Merging to `main` deploys.
-4. **Smoke check.** Open <https://fittrack.temitopeagbola.com>, click **Try the demo**, log a
-   workout, then reload. It should still be there.
+1. **Neon (Postgres).** Create a project and a `fittrack` database, then copy the pooled
+   connection string.
+2. **Render (API).** Go to **New → Blueprint** and select this repo; Render reads
+   [`render.yaml`](render.yaml). Set `DATABASE_URL` to the Neon string. Render generates
+   `JWT_SECRET` for you. `CORS_ORIGINS` is preset to the production URL. Migrations run every
+   time the service boots, and the health check is `/healthz`.
+3. **Netlify (web).** [`netlify.toml`](netlify.toml) builds `apps/web` with `npm run build`,
+   publishes `apps/web/dist` and adds a single-page-app redirect. Set the site environment
+   variable `EXPO_PUBLIC_API_URL` to the Render service URL. The build deliberately fails without
+   it. Netlify deploys `main`.
 
-## Environment variables
-
-Every variable is listed with comments in [`.env.example`](.env.example).
-
-| Variable                                                                          | Where       | Purpose                                                                 |
-| --------------------------------------------------------------------------------- | ----------- | ----------------------------------------------------------------------- |
-| `DATABASE_URL`                                                                    | API         | Postgres connection string (Neon pooled URL in production)              |
-| `JWT_SECRET`                                                                      | API         | Token signing secret; required (32+ characters) in production           |
-| `JWT_EXPIRES_IN`                                                                  | API         | Session lifetime, default `30d`                                         |
-| `CORS_ORIGINS`                                                                    | API         | Comma-separated browser origins; supports `https://*--site.netlify.app` |
-| `NODE_ENV`, `HOST`, `PORT`, `LOG_LEVEL`                                           | API         | Runtime basics (Render sets `PORT`)                                     |
-| `DATABASE_POOL_MAX`                                                               | API         | Postgres pool size (default 5)                                          |
-| `RUN_MIGRATIONS`                                                                  | API         | Apply migrations on boot (default `true`)                               |
-| `DEMO_TTL_HOURS`                                                                  | API         | Lifetime of demo sandboxes (default 24)                                 |
-| `RATE_LIMIT_PER_MINUTE`, `AUTH_RATE_LIMIT_PER_MINUTE`, `DEMO_RATE_LIMIT_PER_HOUR` | API         | Per-IP rate limits                                                      |
-| `TEST_DATABASE_URL`, `E2E_DATABASE_URL`                                           | Tests       | Databases for the integration and e2e suites                            |
-| `EXPO_PUBLIC_API_URL`                                                             | App (build) | API base URL, inlined at build time; **required on Netlify**            |
-| `EXPO_PUBLIC_HEALTH_PROVIDER`                                                     | App (build) | `mock` forces simulated health data on native                           |
-
-## Project structure
-
-```
-apps/
-  api/               Fastify API: routes, repos (SQL), migrations, demo seeding, tests
-  web/               Expo app: src/app (routes), src/store (Redux + sync engine),
-                     src/health (providers), src/components (UI + charts), tests
-packages/
-  shared/            Zod schemas, exercise catalog, PR/streak/volume maths, demo data
-e2e/                 Playwright smoke tests + static server for the web export
-docker/              Postgres init script, nginx config
-docs/PLAN.md         Architecture plan, sync protocol, trade-offs
-docker-compose.yml   Whole stack locally
-render.yaml          Render blueprint (API)
-netlify.toml         Netlify build for apps/web
-```
+Free Render instances sleep when idle, so the first request after a pause can take up to a
+minute. The app shows a "Waking the server…" banner meanwhile.
 
 ## Security notes
 
-- Passwords use scrypt with a per-user salt and timing-safe comparison. Unknown emails take
-  as long to reject as wrong passwords.
-- All input is validated with Zod at the API boundary, using the same schemas the app uses.
-  SQL is fully parameterised.
-- Ownership is enforced on every write. Reusing another user's workout ID returns 404 and
-  never overwrites their data.
-- Auth, demo creation and global traffic are rate limited per IP. CORS is an allow-list.
-  Helmet sets security headers, and Netlify adds frame and content-type protections.
-- Session tokens are stored in the Keychain/Keystore on devices (via SecureStore). On the web
-  they go in `localStorage`, the usual trade-off for a bearer-token SPA, mitigated by strict
-  CORS and token expiry.
+- Passwords are hashed with scrypt using a per-user salt and compared in constant time. Unknown
+  emails take as long to reject as wrong passwords.
+- Every request body is validated with Zod at the API boundary, and all SQL is parameterised.
+- Ownership is checked on every write. Reusing another user's workout ID returns 404.
+- Authentication, demo creation and general traffic are rate limited per IP. CORS uses an
+  allow-list, and Helmet sets security headers.
+- On devices, session tokens are kept in the Keychain or Keystore (via SecureStore). On the web
+  they're kept in `localStorage`.
 
-## Known limitations and next steps
+## Known limitations
 
-- Access tokens only (30 days); no refresh-token rotation or server-side revocation yet.
-- On the first sync, the client downloads all history. Very long histories would need paging.
-- Weights are in kg only; there is no unit preference yet.
-- The HealthKit and Health Connect providers typecheck against the libraries' APIs but need a
-  physical-device pass in a development build. CI only covers the simulated provider.
-- Stats are computed on the client. A server-side stats endpoint would help other clients.
+- Access tokens only (30 days); there is no refresh-token rotation or server-side revocation.
+- On first sync, the client downloads the user's full history.
+- Weights are in kilograms only.
+- The HealthKit and Health Connect providers haven't been tested on a physical device yet. CI
+  covers the simulated provider.
+
+## Contributing
+
+1. Create a branch from `main`.
+2. Make your change and run `npm run lint && npm run typecheck && npm test` locally (start
+   Postgres first with `docker compose up -d db`).
+3. Open a pull request. CI must pass before merging.
+
+## License
+
+All rights reserved.
