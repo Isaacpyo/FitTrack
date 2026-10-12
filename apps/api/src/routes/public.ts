@@ -5,7 +5,7 @@ export async function publicRoutes(app: FastifyInstance, { pool }: { pool: pg.Po
   app.get('/', async () => ({
     name: 'FitTrack API',
     health: '/healthz',
-    source: 'https://github.com/Isaacpyo/FitTrack',
+    source: 'https://github.com/temitopeagbola/FitTrack',
   }));
 
   /** Liveness + DB check. The app also pings this on launch to wake a sleeping free-tier instance. */

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "FitTrack — offline-first workout tracker (Expo + Redux Toolkit + Node/Postgres)",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "workspaces": [
     "packages/*",
     "apps/*"
