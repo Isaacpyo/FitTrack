@@ -1,0 +1,43 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+build/
+*.tsbuildinfo
+coverage/
+
+# env & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.p8
+*.p12
+*.key
+*.jks
+*.mobileprovision
+google-services.json
+GoogleService-Info.plist
+
+# Expo / Metro
+.expo/
+web-build/
+expo-env.d.ts
+.metro-health-check*
+apps/web/ios/
+apps/web/android/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# logs & OS noise
+npm-debug.log*
+*.log
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
